@@ -1,0 +1,43 @@
+# Gradle
+.gradle/
+build/
+*/build/
+
+# Android Studio
+.idea/
+*.iml
+.DS_Store
+
+# Local configuration
+local.properties
+
+# Signings/keystores (if any)
+*.jks
+*.keystore
+
+# Generated
+captures/
+.cxx/
+externalNativeBuild/
+
+# Logs
+*.log
+
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+.bmad-core/
+.cursor/
