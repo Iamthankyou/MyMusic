@@ -1,0 +1,12 @@
+# Components (Compose)
+- AppScaffold: `Scaffold` with BottomNav, MiniPlayer slot, content.
+- TopBar: `CenterAlignedTopAppBar` per screen.
+- BottomNavigation: 5 destinations with icons + labels.
+- TabRow: Trending sub-nav.
+- List Items:
+  - MediaListItem (track): artwork, title, subtitle, trailing actions.
+  - MediaCard (album/playlist/podcast): square artwork, title, subtitle.
+- PlayerControls: transport controls + seek bar.
+- MiniPlayer: compact controls + thumbnail.
+- EmptyState, ErrorState (retry), LoadingSkeletons (shimmer).
+- DownloadRow: title, progress bar, actions.

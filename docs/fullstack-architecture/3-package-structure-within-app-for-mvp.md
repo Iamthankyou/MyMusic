@@ -1,0 +1,21 @@
+# 3) Package Structure (within `app` for MVP)
+- `com.example.mymusic.presentation`
+  - `home` (Trending/Feeds/Radio/Stream/Explore screens)
+  - `details` (Album/Playlist/Podcast details)
+  - `player` (full-screen player + mini-player UI)
+  - `downloads` (download list/progress)
+  - `components` (shared Compose components)
+  - `navigation` (NavGraph)
+  - `theme`
+- `com.example.mymusic.domain`
+  - `model`
+  - `repository`
+  - `usecase`
+- `com.example.mymusic.data`
+  - `remote` (Retrofit services, DTOs)
+  - `repository` (impls)
+  - `mapper`
+  - `local` (optional cache/Room/DataStore)
+- `com.example.mymusic.media` (Media3 service, session, player facade)
+- `com.example.mymusic.download` (download controller, receivers)
+- `com.example.mymusic.di` (Hilt modules)
