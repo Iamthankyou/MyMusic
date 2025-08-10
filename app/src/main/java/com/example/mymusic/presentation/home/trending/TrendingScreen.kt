@@ -19,6 +19,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 // Use index-based items() to avoid paging-compose items import conflicts
 import coil.compose.AsyncImage
 import com.example.mymusic.domain.model.Track
+import com.example.mymusic.playback.PlaybackController
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 @Composable
 fun TrendingScreen(viewModel: TrendingViewModel = hiltViewModel()) {
@@ -33,7 +36,7 @@ fun TrendingScreen(viewModel: TrendingViewModel = hiltViewModel()) {
             val count = items.itemCount
             items(count) { index ->
                 val track = items[index]
-                if (track != null) TrackRow(track)
+                if (track != null) TrackRow(track, onClick = { viewModel.onTrackClicked(track) })
             }
             items.apply {
                 when {
@@ -61,7 +64,7 @@ fun TrendingScreen(viewModel: TrendingViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun TrackRow(track: Track) {
+private fun TrackRow(track: Track, onClick: () -> Unit = {}) {
     ListItem(
         headlineContent = { Text(track.title) },
         supportingContent = { Text(track.artist) },
@@ -72,6 +75,7 @@ private fun TrackRow(track: Track) {
                 modifier = Modifier.size(56.dp)
             )
         },
+        modifier = Modifier.clickable { onClick() },
         trailingContent = {
             Text(text = formatDurationMsToMinSec(track.durationMs))
         }

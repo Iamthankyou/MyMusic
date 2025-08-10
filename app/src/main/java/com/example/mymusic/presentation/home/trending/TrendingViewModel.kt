@@ -9,19 +9,32 @@ import androidx.paging.cachedIn
 import com.example.mymusic.data.paging.TrendingTracksPagingSource
 import com.example.mymusic.data.remote.JamendoTracksService
 import com.example.mymusic.domain.model.Track
+import com.example.mymusic.playback.PlaybackController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @HiltViewModel
 class TrendingViewModel @Inject constructor(
-    private val service: JamendoTracksService
+    private val service: JamendoTracksService,
+    private val controller: PlaybackController
 ) : ViewModel() {
 
     val pagingData: Flow<PagingData<Track>> = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 2),
         pagingSourceFactory = { TrendingTracksPagingSource(service, 20) }
     ).flow.cachedIn(viewModelScope)
+
+    fun onTrackClicked(track: Track) {
+        val url = track.audioUrl ?: return
+        controller.play(
+            trackId = track.id,
+            title = track.title,
+            artist = track.artist,
+            artworkUrl = track.artworkUrl,
+            url = url
+        )
+    }
 }
 
 
