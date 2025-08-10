@@ -1,0 +1,64 @@
+graph LR
+  subgraph UI["Presentation Layer (Jetpack Compose)"]
+    TScreen["TrendingScreen (Composable)"]
+    MiniPlayer["MiniPlayer (Composable)"]
+    Nav["NavHost (Navigation)"]
+  end
+
+  subgraph VM["ViewModels (Hilt)"]
+    TVM["TrendingViewModel\nPager(PagingConfig)\n.onTrackClicked(track)"]
+    PVM["PlayerViewModel\nnowPlaying: StateFlow"]
+  end
+
+  subgraph Domain["Domain Layer"]
+    UseCase["GetTrendingTracksUseCase"]
+    RepoIface["TrackRepository (interface)"]
+    Model["Track (domain model)"]
+  end
+
+  subgraph Data["Data Layer"]
+    RepoImpl["TrackRepositoryImpl"]
+    PagingSrc["TrendingTracksPagingSource"]
+    Mapper["TrackMapper DTO→Domain"]
+    Service["JamendoTracksService (Retrofit)"]
+    Interceptor["OkHttp Interceptor\n(client_id, format=json)"]
+  end
+
+  subgraph Playback["Playback"]
+    Ctrl["PlaybackController (@Singleton)\nExoPlayer"]
+    State["NowPlayingState\n(title, artist, artwork, isPlaying, positionMs, durationMs)"]
+    ServiceMS["MediaSessionService (1.5)"]
+    Notif["Notification Controls (1.5)"]
+  end
+
+  subgraph Infra["External / Platform"]
+    Jamendo["Jamendo API"]
+    Hilt["Hilt DI"]
+  end
+
+  %% Wiring
+  TScreen --> TVM
+  MiniPlayer --> PVM
+  TVM --> UseCase
+  UseCase --> RepoIface
+  RepoIface -.binds.-> RepoImpl
+  TVM --> PagingSrc
+  RepoImpl --> Service
+  PagingSrc --> Service
+  Service --> Jamendo
+  Service -.okhttp.-> Interceptor
+
+  %% Playback wiring
+  TVM -- onTrackClicked(track) --> Ctrl
+  Ctrl --> State
+  PVM --> State
+  State --> MiniPlayer
+  Ctrl --> ServiceMS
+  ServiceMS --> Notif
+
+  %% DI
+  Hilt -.provides.-> TVM
+  Hilt -.provides.-> PVM
+  Hilt -.provides.-> RepoImpl
+  Hilt -.provides.-> Service
+  Hilt -.provides.-> Ctrl
