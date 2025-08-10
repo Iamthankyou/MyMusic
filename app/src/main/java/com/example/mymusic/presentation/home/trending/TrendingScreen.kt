@@ -68,11 +68,24 @@ private fun TrackRow(track: Track) {
         leadingContent = {
             AsyncImage(
                 model = track.artworkUrl,
-                contentDescription = null,
+                contentDescription = "Artwork for ${track.title}",
                 modifier = Modifier.size(56.dp)
             )
+        },
+        trailingContent = {
+            Text(text = formatDurationMsToMinSec(track.durationMs))
         }
     )
+}
+
+private fun formatDurationMsToMinSec(durationMs: Long): String {
+    if (durationMs <= 0L) return "00:00"
+    val totalSeconds = durationMs / 1000L
+    val minutes = totalSeconds / 60L
+    val seconds = totalSeconds % 60L
+    val minStr = minutes.coerceAtLeast(0).toString().padStart(2, '0')
+    val secStr = seconds.coerceAtLeast(0).toString().padStart(2, '0')
+    return "$minStr:$secStr"
 }
 
 @Composable
