@@ -3,6 +3,7 @@ package com.example.mymusic.playback
 import android.content.Context
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.C
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,15 @@ class PlaybackController @Inject constructor(
                 scope.launch { _state.emit(_state.value.copy(isPlaying = isPlaying)) }
             }
         })
+        // Periodic position updater
+        scope.launch {
+            while (true) {
+                val duration = player.duration.takeIf { it != C.TIME_UNSET } ?: 0L
+                val position = player.currentPosition
+                _state.emit(_state.value.copy(positionMs = position, durationMs = duration))
+                kotlinx.coroutines.delay(500L)
+            }
+        }
     }
 
     fun play(
@@ -53,7 +63,9 @@ class PlaybackController @Inject constructor(
                     title = title,
                     artist = artist,
                     artworkUrl = artworkUrl,
-                    isPlaying = true
+                    isPlaying = true,
+                    positionMs = 0L,
+                    durationMs = 0L
                 )
             )
         }
@@ -64,6 +76,13 @@ class PlaybackController @Inject constructor(
     }
 
     fun pause() { player.pause() }
+
+    fun seekTo(positionMs: Long) {
+        val duration = player.duration.takeIf { it != C.TIME_UNSET } ?: return
+        val clamped = positionMs.coerceIn(0L, duration)
+        player.seekTo(clamped)
+        scope.launch { _state.emit(_state.value.copy(positionMs = clamped, durationMs = duration)) }
+    }
 
     fun release() { player.release() }
 }

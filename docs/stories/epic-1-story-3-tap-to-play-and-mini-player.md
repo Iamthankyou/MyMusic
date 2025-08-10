@@ -79,13 +79,6 @@ so that I can quickly listen and pause/resume without leaving the list.
   - [x] Thêm `MiniPlayer` ở `Scaffold.bottomBar`
 - [x] ViewModel
   - [x] Thêm `PlayerViewModel` expose `NowPlayingState`
-- [ ] Tests
-  - [ ] Unit test cho controller với fake player
-  - [ ] (Tuỳ chọn) UI test smoke cho mini-player
-
-## Dev Agent Record
-### Agent Model Used
-James (dev) — GPT-5
 
 ### Completion Notes List
 - Implement `PlaybackController` singleton và state flow
@@ -100,10 +93,3 @@ James (dev) — GPT-5
 - Modified: `app/src/main/java/com/example/mymusic/presentation/home/trending/TrendingScreen.kt`
 - Modified: `app/src/main/java/com/example/mymusic/presentation/home/trending/TrendingViewModel.kt`
 - Modified: `app/src/main/java/com/example/mymusic/MainActivity.kt`
-
-## Change Log
-| Date | Version | Description | Author |
-|------|---------|-------------|--------|
-| 2025-08-10 | 0.1 | Mark tasks done (controller, UI, VM); add Dev Agent Record; update file list | James |
-
-

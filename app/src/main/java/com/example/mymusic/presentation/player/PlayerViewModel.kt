@@ -19,6 +19,7 @@ class PlayerViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly, NowPlayingState())
 
     fun toggle() = controller.togglePlayPause()
+    fun seekTo(positionMs: Long) = controller.seekTo(positionMs)
 }
 
 
