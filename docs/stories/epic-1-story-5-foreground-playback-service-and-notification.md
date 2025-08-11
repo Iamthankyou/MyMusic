@@ -1,7 +1,7 @@
 # Story 1.5 — Foreground Playback Service, MediaSession & Notification (Epic 1)
 
 ## Status
-- Draft
+- Done
 
 ## Story
 As a listener,

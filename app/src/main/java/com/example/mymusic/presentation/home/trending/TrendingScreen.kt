@@ -20,6 +20,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.mymusic.domain.model.Track
 import com.example.mymusic.playback.PlaybackController
+import com.example.mymusic.presentation.components.AppEmpty
+import com.example.mymusic.presentation.components.AppError
+import com.example.mymusic.presentation.components.AppLoading
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -41,21 +44,21 @@ fun TrendingScreen(viewModel: TrendingViewModel = hiltViewModel()) {
             items.apply {
                 when {
                     loadState.refresh is androidx.paging.LoadState.Loading -> {
-                        item { FullscreenLoading() }
+                        item { AppLoading() }
                     }
                     loadState.refresh is androidx.paging.LoadState.NotLoading && count == 0 -> {
-                        item { EmptyState(onRetry = { refresh() }) }
+                        item { AppEmpty(onRetry = { refresh() }) }
                     }
                     loadState.append is androidx.paging.LoadState.Loading -> {
-                        item { BottomLoading() }
+                        item { AppLoading(fullscreen = false) }
                     }
                     loadState.refresh is androidx.paging.LoadState.Error -> {
                         val e = loadState.refresh as androidx.paging.LoadState.Error
-                        item { ErrorItem(e.error.message ?: "Error", onRetry = { retry() }) }
+                        item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
                     }
                     loadState.append is androidx.paging.LoadState.Error -> {
                         val e = loadState.append as androidx.paging.LoadState.Error
-                        item { ErrorItem(e.error.message ?: "Error", onRetry = { retry() }) }
+                        item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
                     }
                 }
             }
@@ -92,47 +95,6 @@ private fun formatDurationMsToMinSec(durationMs: Long): String {
     return "$minStr:$secStr"
 }
 
-@Composable
-private fun FullscreenLoading() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun BottomLoading() {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalArrangement = Arrangement.Center
-    ) { CircularProgressIndicator() }
-}
-
-@Composable
-private fun ErrorItem(message: String, onRetry: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = message, color = MaterialTheme.colorScheme.error)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = "Tap to retry",
-            modifier = Modifier.clickable { onRetry() }
-        )
-    }
-}
-
-@Composable
-private fun EmptyState(onRetry: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "No results. Check API key or network.")
-        Spacer(Modifier.height(8.dp))
-        Text(text = "Tap to retry", modifier = Modifier.clickable { onRetry() })
-    }
-}
+// Replaced local state views with unified components: AppLoading, AppEmpty, AppError
 
 

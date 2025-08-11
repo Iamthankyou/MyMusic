@@ -1,7 +1,7 @@
 # Story 1.6 — Loading/Empty/Error Polish & Unified Retry UX (Epic 1)
 
 ## Status
-- Draft
+- Done
 
 ## Story
 As a user,
