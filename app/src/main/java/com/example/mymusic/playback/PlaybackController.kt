@@ -3,6 +3,7 @@ package com.example.mymusic.playback
 import android.content.Context
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import android.content.Intent
 import androidx.media3.common.C
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -13,12 +14,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.media3.common.AudioAttributes
 
 @Singleton
 class PlaybackController @Inject constructor(
     @ApplicationContext context: Context
 ) {
-    private val player: ExoPlayer = ExoPlayer.Builder(context).build()
+    private val appContext: Context = context.applicationContext
+    private val player: ExoPlayer = ExoPlayer.Builder(appContext).build().apply {
+        val attrs = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+        setAudioAttributes(attrs, true)
+    }
 
     private val _state = MutableStateFlow(NowPlayingState())
     val state: StateFlow<NowPlayingState> = _state
@@ -56,6 +65,11 @@ class PlaybackController @Inject constructor(
         player.setMediaItem(item)
         player.prepare()
         player.play()
+        // Ensure foreground service is running
+        try {
+            val intent = Intent(appContext, com.example.mymusic.playback.PlaybackService::class.java)
+            appContext.startForegroundService(intent)
+        } catch (_: Throwable) { }
         scope.launch {
             _state.emit(
                 NowPlayingState(
@@ -85,6 +99,8 @@ class PlaybackController @Inject constructor(
     }
 
     fun release() { player.release() }
+
+    fun getPlayer(): ExoPlayer = player
 }
 
 
