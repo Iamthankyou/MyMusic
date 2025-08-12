@@ -52,14 +52,18 @@ so that I can see details and control playback beyond the mini-player.
 - ✅ **Navigation Integration**: PlayerRoute added to NavHost with entry point from MiniPlayer
 - ✅ **State Management**: Queue and current index exposed as StateFlows
 - ✅ **UI Polish**: Proper loading states, error handling, and graceful duration handling
+- ✅ **Queue with Real Tracks**: Fixed to use actual trending tracks instead of sample tracks
+- ✅ **MiniPlayer Visibility**: Fixed overlap issue by hiding MiniPlayer in PlayerRoute
+- ✅ **Next/Previous Navigation**: Fixed to properly navigate through real tracks in queue
 
 ## Files Created/Modified
 - `presentation/player/PlayerRoute.kt` - Complete Now Playing screen implementation
 - `playback/PlaybackController.kt` - Added queue operations and state management
 - `presentation/player/PlayerViewModel.kt` - Exposed PlaybackController for UI access
 - `presentation/player/MiniPlayer.kt` - Added navigation to PlayerRoute on tap
-- `MainActivity.kt` - Added PlayerRoute to NavHost
-- `presentation/home/trending/TrendingViewModel.kt` - Set queue when playing tracks
+- `MainActivity.kt` - Added PlayerRoute to NavHost, fixed MiniPlayer visibility
+- `presentation/home/trending/TrendingViewModel.kt` - Set queue with real tracks from trending list
+- `presentation/home/trending/TrendingScreen.kt` - Added loaded tracks tracking for queue management
 
 ## Project Structure Notes
 - Architecture docs under `docs/fullstack-architecture/*`.

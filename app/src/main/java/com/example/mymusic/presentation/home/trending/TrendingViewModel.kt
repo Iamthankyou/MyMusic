@@ -39,25 +39,31 @@ class TrendingViewModel @Inject constructor(
         val allTracks = _loadedTracks.value
         val currentIndex = allTracks.indexOfFirst { it.id == track.id }
         
-        viewModelScope.launch {
-            if (currentIndex != -1) {
-                // Track found in loaded tracks, set queue with all tracks
+        if (currentIndex != -1) {
+            // Track found in loaded tracks, set queue and play at index
+            viewModelScope.launch {
                 controller.setQueue(allTracks)
-                // Set current index to the clicked track
+                controller.setCurrentIndex(currentIndex)
+                kotlinx.coroutines.delay(100) // Small delay to ensure queue is set
                 controller.playAt(currentIndex)
-            } else {
-                // Track not found, just play this single track
+            }
+        } else {
+            // Track not found, just play this single track
+            controller.play(
+                trackId = track.id,
+                title = track.title,
+                artist = track.artist,
+                artworkUrl = track.artworkUrl,
+                url = url
+            )
+            
+            // Set this track as queue for next/previous
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(100)
                 controller.setQueue(listOf(track))
+                controller.setCurrentIndex(0)
             }
         }
-        
-        controller.play(
-            trackId = track.id,
-            title = track.title,
-            artist = track.artist,
-            artworkUrl = track.artworkUrl,
-            url = url
-        )
     }
     
     fun updateLoadedTracks(tracks: List<Track>) {

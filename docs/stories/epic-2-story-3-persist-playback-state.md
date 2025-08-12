@@ -1,7 +1,7 @@
 # Story 2.3 — Persist Playback State (Epic 2: Media Playback & Player UX)
 
 ## Status
-- Draft
+- TBD
 
 ## Story
 As a listener,

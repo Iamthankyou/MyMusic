@@ -1,7 +1,7 @@
 # Story 2.5 — Android Auto Integration (Epic 2: Media Playback & Player UX)
 
 ## Status
-- Draft
+- TBD
 
 ## Story
 As a driver,

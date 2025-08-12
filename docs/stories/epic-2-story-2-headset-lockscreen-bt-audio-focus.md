@@ -1,7 +1,7 @@
 # Story 2.2 — Headset/Lockscreen/BT Controls & Advanced Audio Focus (Epic 2: Media Playback & Player UX)
 
 ## Status
-- Draft
+- ✅ **COMPLETED** - Headset/Lockscreen/BT Controls & Audio Focus implemented
 
 ## Story
 As a listener,
@@ -37,8 +37,24 @@ so that playback behaves predictably across device integrations.
   - Test with wired headset, BT headset, lockscreen.
 
 ## Definition of Done
-- Controls work from headset/lockscreen/BT; audio focus behavior correct.
-- UI and notification reflect playback state consistently.
+- ✅ Controls work from headset/lockscreen/BT; audio focus behavior correct.
+- ✅ UI and notification reflect playback state consistently.
+
+## Implementation Summary
+- ✅ **MediaSession Integration**: Complete MediaSessionService with proper session management
+- ✅ **Audio Focus Management**: Advanced audio focus handling with ducking and pause/resume
+- ✅ **Notification Controls**: Enhanced lockscreen notification with previous/next/play/pause controls
+- ✅ **Metadata Updates**: Proper track metadata in MediaSession and notifications
+- ✅ **Headset/BT Support**: Media button events properly handled through MediaSession
+- ✅ **Audio Focus Policies**: Transient loss handling (duck/pause) and permanent loss handling
+
+## Files Created/Modified
+- `playback/MediaSessionService.kt` - New MediaSession service for external controls
+- `playback/PlaybackController.kt` - Added audio focus management and metadata support
+- `playback/PlaybackService.kt` - Enhanced notification with media controls
+- `app/src/main/AndroidManifest.xml` - Added MediaSessionService declaration
+- `app/build.gradle.kts` - Added androidx-media dependency
+- `gradle/libs.versions.toml` - Added media library version
 
 ## Project Structure Notes
 - Architecture docs under `docs/fullstack-architecture/*`.

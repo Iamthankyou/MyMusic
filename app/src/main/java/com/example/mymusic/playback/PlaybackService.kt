@@ -67,23 +67,48 @@ class PlaybackService : MediaSessionService() {
     }
 
     private fun buildNotification(channelId: String): Notification {
-        val isPlaying = controller.getPlayer().isPlaying
+        val player = controller.getPlayer()
+        val isPlaying = player.isPlaying
+        val state = controller.state.value
+        
         val toggleAction = NotificationCompat.Action(
             if (isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play,
             if (isPlaying) "Pause" else "Play",
             pendingIntent(ACTION_TOGGLE)
         )
+        
+        val previousAction = NotificationCompat.Action(
+            android.R.drawable.ic_media_previous,
+            "Previous",
+            pendingIntent(ACTION_PREVIOUS)
+        )
+        
+        val nextAction = NotificationCompat.Action(
+            android.R.drawable.ic_media_next,
+            "Next",
+            pendingIntent(ACTION_NEXT)
+        )
+        
         val stopAction = NotificationCompat.Action(
             android.R.drawable.ic_menu_close_clear_cancel,
             "Stop",
             pendingIntent(ACTION_STOP)
         )
+        
+        val contentTitle = state.title.ifEmpty { "MyMusic" }
+        val contentText = state.artist.ifEmpty { if (isPlaying) "Playing" else "Paused" }
+        
         return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("MyMusic")
-            .setContentText(if (isPlaying) "Playing" else "Paused")
+            .setContentTitle(contentTitle)
+            .setContentText(contentText)
             .setSmallIcon(android.R.drawable.ic_media_play)
             .setOngoing(isPlaying)
+            .setStyle(androidx.media.app.NotificationCompat.MediaStyle()
+                .setMediaSession(mediaSession?.sessionCompatToken)
+                .setShowActionsInCompactView(0, 1, 2))
+            .addAction(previousAction)
             .addAction(toggleAction)
+            .addAction(nextAction)
             .addAction(stopAction)
             .build()
     }
@@ -97,6 +122,8 @@ class PlaybackService : MediaSessionService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_TOGGLE -> controller.togglePlayPause()
+            ACTION_PREVIOUS -> controller.skipPrevious()
+            ACTION_NEXT -> controller.skipNext()
             ACTION_STOP -> {
                 controller.pause()
                 stopForeground(STOP_FOREGROUND_REMOVE)
@@ -109,6 +136,8 @@ class PlaybackService : MediaSessionService() {
     companion object {
         private const val NOTIF_ID = 1001
         private const val ACTION_TOGGLE = "com.example.mymusic.playback.ACTION_TOGGLE"
+        private const val ACTION_PREVIOUS = "com.example.mymusic.playback.ACTION_PREVIOUS"
+        private const val ACTION_NEXT = "com.example.mymusic.playback.ACTION_NEXT"
         private const val ACTION_STOP = "com.example.mymusic.playback.ACTION_STOP"
     }
 }
