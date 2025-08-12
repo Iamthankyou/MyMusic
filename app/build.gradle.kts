@@ -14,6 +14,23 @@ kotlin {
 android {
     namespace = "com.example.mymusic"
     compileSdk = 34
+    
+    // Disable SQLite verification for Windows compatibility
+    packaging {
+        resources {
+            excludes.add("META-INF/DEPENDENCIES")
+            excludes.add("META-INF/LICENSE")
+            excludes.add("META-INF/LICENSE.txt")
+            excludes.add("META-INF/license.txt")
+            excludes.add("META-INF/NOTICE")
+            excludes.add("META-INF/NOTICE.txt")
+            excludes.add("META-INF/notice.txt")
+            excludes.add("META-INF/ASL2.0")
+            excludes.add("META-INF/*.kotlin_module")
+        }
+    }
+    
+
 
     defaultConfig {
         applicationId = "com.example.mymusic"
@@ -25,6 +42,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val jamendoClientId = (project.findProperty("JAMENDO_CLIENT_ID") as String?) ?: "0a8b58ca"
         buildConfigField("String", "JAMENDO_CLIENT_ID", "\"$jamendoClientId\"")
+
     }
 
     buildTypes {
@@ -35,6 +53,7 @@ android {
                 "proguard-rules.pro"
             )
         }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -55,6 +74,10 @@ android {
 
 kapt {
     correctErrorTypes = true
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+        arg("room.incremental", "true")
+    }
 }
 
 dependencies {
@@ -80,6 +103,12 @@ dependencies {
 
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
+    
+    // Room dependencies
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
+    kapt(libs.sqlite.jdbc)
 
     implementation(libs.coil.compose)
 
