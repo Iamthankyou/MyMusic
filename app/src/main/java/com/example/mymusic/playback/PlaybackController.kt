@@ -48,6 +48,15 @@ class PlaybackController @Inject constructor(
     private val _currentIndex = MutableStateFlow(0)
     val currentIndex: StateFlow<Int> = _currentIndex
 
+    private val _playbackSpeed = MutableStateFlow(1.0f)
+    val playbackSpeed: StateFlow<Float> = _playbackSpeed
+
+    private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_OFF)
+    val repeatMode: StateFlow<Int> = _repeatMode
+
+    private val _shuffleMode = MutableStateFlow(false)
+    val shuffleMode: StateFlow<Boolean> = _shuffleMode
+
     private val scope = CoroutineScope(Dispatchers.Main)
 
     init {
@@ -331,6 +340,50 @@ class PlaybackController @Inject constructor(
     }
 
     fun getPlayer(): ExoPlayer = player
+
+    // Playback Speed Control
+    fun setPlaybackSpeed(speed: Float) {
+        val clampedSpeed = speed.coerceIn(0.25f, 2.0f)
+        player.playbackParameters = androidx.media3.common.PlaybackParameters(clampedSpeed)
+        scope.launch {
+            _playbackSpeed.emit(clampedSpeed)
+        }
+    }
+
+    // Repeat Mode Control
+    fun setRepeatMode(mode: Int) {
+        player.repeatMode = mode
+        scope.launch {
+            _repeatMode.emit(mode)
+        }
+    }
+
+    fun toggleRepeatMode() {
+        val currentMode = _repeatMode.value
+        val nextMode = when (currentMode) {
+            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ONE
+            Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ALL
+            Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_OFF
+            else -> Player.REPEAT_MODE_OFF
+        }
+        setRepeatMode(nextMode)
+    }
+
+    // Shuffle Mode Control
+    fun toggleShuffleMode() {
+        val newShuffleMode = !_shuffleMode.value
+        player.shuffleModeEnabled = newShuffleMode
+        scope.launch {
+            _shuffleMode.emit(newShuffleMode)
+        }
+    }
+
+    fun setShuffleMode(enabled: Boolean) {
+        player.shuffleModeEnabled = enabled
+        scope.launch {
+            _shuffleMode.emit(enabled)
+        }
+    }
 }
 
 

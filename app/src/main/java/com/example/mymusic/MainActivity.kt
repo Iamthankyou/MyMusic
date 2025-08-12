@@ -13,14 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.mymusic.presentation.home.trending.TrendingScreen
 import com.example.mymusic.presentation.player.MiniPlayer
-import com.example.mymusic.presentation.player.PlayerRoute
 import com.example.mymusic.presentation.navigation.BottomNavBar
+import com.example.mymusic.presentation.navigation.NavGraph
 import com.example.mymusic.ui.theme.MyMusicTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -44,16 +41,10 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { padding ->
-                    NavHost(
+                    NavGraph(
                         navController = navController,
-                        startDestination = "trending",
                         modifier = Modifier.padding(padding)
-                    ) {
-                        composable("trending") { TrendingScreen() }
-                        composable("explore") { PlaceholderScreen(title = "Explore") }
-                        composable("downloads") { PlaceholderScreen(title = "Downloads") }
-                        composable("player") { PlayerRoute(navController) }
-                    }
+                    )
                 }
             }
         }

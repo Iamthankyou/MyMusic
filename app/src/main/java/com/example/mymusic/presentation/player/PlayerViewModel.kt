@@ -18,8 +18,25 @@ class PlayerViewModel @Inject constructor(
     val nowPlaying: StateFlow<NowPlayingState> = playbackController.state
         .stateIn(viewModelScope, SharingStarted.Eagerly, NowPlayingState())
 
+    // Playback controls
     fun toggle() = playbackController.togglePlayPause()
     fun seekTo(positionMs: Long) = playbackController.seekTo(positionMs)
+    fun skipNext() = playbackController.skipNext()
+    fun skipPrevious() = playbackController.skipPrevious()
+
+    // Playback speed, repeat, shuffle controls
+    val playbackSpeed = playbackController.playbackSpeed
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 1.0f)
+    
+    val repeatMode = playbackController.repeatMode
+        .stateIn(viewModelScope, SharingStarted.Eagerly, androidx.media3.common.Player.REPEAT_MODE_OFF)
+    
+    val shuffleMode = playbackController.shuffleMode
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setPlaybackSpeed(speed: Float) = playbackController.setPlaybackSpeed(speed)
+    fun toggleRepeatMode() = playbackController.toggleRepeatMode()
+    fun toggleShuffleMode() = playbackController.toggleShuffleMode()
 }
 
 

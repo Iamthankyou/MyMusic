@@ -50,7 +50,42 @@ fun MiniPlayer(
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = state.title, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
-                    Text(text = state.artist, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(text = state.artist, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                        
+                        // Show playback speed if not 1.0x
+                        val playbackSpeed by viewModel.playbackSpeed.collectAsState()
+                        if (playbackSpeed != 1.0f) {
+                            Text(
+                                text = "• ${playbackSpeed}x",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        
+                        // Show repeat mode if enabled
+                        val repeatMode by viewModel.repeatMode.collectAsState()
+                        if (repeatMode != androidx.media3.common.Player.REPEAT_MODE_OFF) {
+                            Text(
+                                text = "• 🔄",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        
+                        // Show shuffle mode if enabled
+                        val shuffleMode by viewModel.shuffleMode.collectAsState()
+                        if (shuffleMode) {
+                            Text(
+                                text = "• 🔀",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
                 IconButton(
                     onClick = { viewModel.toggle() },

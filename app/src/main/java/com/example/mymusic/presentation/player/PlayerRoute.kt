@@ -15,6 +15,10 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.ImageNotSupported
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.RepeatOne
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -228,7 +232,90 @@ fun PlayerRoute(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Playback Speed, Repeat & Shuffle Controls
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Shuffle Button
+            val shuffleMode by viewModel.shuffleMode.collectAsState()
+            IconButton(
+                onClick = { viewModel.toggleShuffleMode() },
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        color = if (shuffleMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Shuffle,
+                    contentDescription = "Shuffle",
+                    modifier = Modifier.size(24.dp),
+                    tint = if (shuffleMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Repeat Button
+            val repeatMode by viewModel.repeatMode.collectAsState()
+            IconButton(
+                onClick = { viewModel.toggleRepeatMode() },
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        color = if (repeatMode != androidx.media3.common.Player.REPEAT_MODE_OFF) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = when (repeatMode) {
+                        androidx.media3.common.Player.REPEAT_MODE_ONE -> Icons.Default.RepeatOne
+                        androidx.media3.common.Player.REPEAT_MODE_ALL -> Icons.Default.Repeat
+                        else -> Icons.Default.Repeat
+                    },
+                    contentDescription = "Repeat",
+                    modifier = Modifier.size(24.dp),
+                    tint = if (repeatMode != androidx.media3.common.Player.REPEAT_MODE_OFF) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Speed Button
+            val playbackSpeed by viewModel.playbackSpeed.collectAsState()
+            var showSpeedDialog by remember { mutableStateOf(false) }
+            
+            IconButton(
+                onClick = { showSpeedDialog = true },
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        color = if (playbackSpeed != 1.0f) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                        shape = CircleShape
+                    )
+            ) {
+                Text(
+                    text = "${playbackSpeed}x",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (playbackSpeed != 1.0f) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (showSpeedDialog) {
+                SpeedDialog(
+                    currentSpeed = playbackSpeed,
+                    onSpeedSelected = { speed ->
+                        viewModel.setPlaybackSpeed(speed)
+                        showSpeedDialog = false
+                    },
+                    onDismiss = { showSpeedDialog = false }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Queue Section
         Text(
@@ -352,4 +439,62 @@ private fun formatDuration(durationMs: Long): String {
     val seconds = totalSeconds % 60
     
     return String.format("%d:%02d", minutes, seconds)
+}
+
+@Composable
+private fun SpeedDialog(
+    currentSpeed: Float,
+    onSpeedSelected: (Float) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val speeds = listOf(0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f)
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Playback Speed",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                speeds.forEach { speed ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onSpeedSelected(speed)
+                            }
+                            .padding(vertical = 8.dp, horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${speed}x",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (speed == currentSpeed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                        if (speed == currentSpeed) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Selected",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

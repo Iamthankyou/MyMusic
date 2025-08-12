@@ -1,6 +1,8 @@
 package com.example.mymusic.di
 
+import com.example.mymusic.data.mapper.TrackMapper
 import com.example.mymusic.data.remote.JamendoTracksService
+import com.example.mymusic.data.repository.SearchRepository
 import com.example.mymusic.data.repository.TrackRepositoryImpl
 import com.example.mymusic.domain.repository.TrackRepository
 import dagger.Binds
@@ -23,6 +25,17 @@ abstract class RepositoryModule {
         @Singleton
         fun provideTracksService(retrofit: Retrofit): JamendoTracksService =
             retrofit.create(JamendoTracksService::class.java)
+            
+        @Provides
+        @Singleton
+        fun provideTrackMapper(): TrackMapper = TrackMapper
+            
+        @Provides
+        @Singleton
+        fun provideSearchRepository(
+            service: JamendoTracksService,
+            trackMapper: TrackMapper
+        ): SearchRepository = SearchRepository(service, trackMapper)
     }
 }
 
