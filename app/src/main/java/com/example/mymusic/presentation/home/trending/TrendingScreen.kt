@@ -1,6 +1,7 @@
 package com.example.mymusic.presentation.home.trending
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 // Note: do not import foundation.lazy.items to avoid clashing with paging compose 'items'
@@ -74,13 +75,20 @@ private fun TrackRow(track: Track, onClick: () -> Unit = {}) {
         leadingContent = {
             AsyncImage(
                 model = track.artworkUrl,
-                contentDescription = "Artwork for ${track.title}",
+                contentDescription = "Artwork for ${track.title} by ${track.artist}",
                 modifier = Modifier.size(56.dp)
             )
         },
-        modifier = Modifier.clickable { onClick() },
+        modifier = Modifier
+            .clickable(
+                onClickLabel = "Play ${track.title} by ${track.artist}"
+            ) { onClick() }
+            .heightIn(min = 72.dp), // Ensure minimum touch target height
         trailingContent = {
-            Text(text = formatDurationMsToMinSec(track.durationMs))
+            Text(
+                text = formatDurationMsToMinSec(track.durationMs),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     )
 }

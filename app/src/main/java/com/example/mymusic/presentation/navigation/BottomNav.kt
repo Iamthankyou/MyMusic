@@ -36,7 +36,12 @@ fun BottomNavBar(navController: NavHostController) {
                         }
                     }
                 },
-                icon = { Text(item.label.first().toString()) },
+                icon = { 
+                    Text(
+                        text = getIconForRoute(item.route),
+                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                    ) 
+                },
                 label = { Text(item.label) }
             )
         }
@@ -45,6 +50,15 @@ fun BottomNavBar(navController: NavHostController) {
 
 private fun NavDestination?.isTopLevelDestination(route: String): Boolean {
     return this?.hierarchy?.any { it.route == route } == true
+}
+
+private fun getIconForRoute(route: String): String {
+    return when (route) {
+        "trending" -> "🔥" // Trending/hot icon
+        "explore" -> "🔍" // Search/explore icon
+        "downloads" -> "⬇" // Download icon
+        else -> "•"
+    }
 }
 
 

@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mymusic.presentation.home.trending.TrendingScreen
 import com.example.mymusic.presentation.player.MiniPlayer
 import com.example.mymusic.presentation.navigation.BottomNavBar
+import com.example.mymusic.ui.theme.MyMusicTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Surface(color = MaterialTheme.colorScheme.background) {
+            MyMusicTheme {
                 val navController = rememberNavController()
                 Scaffold(
                     bottomBar = {
@@ -56,6 +57,10 @@ fun TrendingPreview() {}
 @Composable
 private fun PlaceholderScreen(title: String) {
     Surface(color = MaterialTheme.colorScheme.background) {
-        androidx.compose.material3.Text(text = title)
+        androidx.compose.material3.Text(
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }

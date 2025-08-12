@@ -35,7 +35,7 @@ fun MiniPlayer(
             ) {
                 AsyncImage(
                     model = state.artworkUrl,
-                    contentDescription = "Now playing artwork",
+                    contentDescription = "Now playing: ${state.title} by ${state.artist}",
                     modifier = Modifier.size(48.dp)
                 )
                 Spacer(Modifier.width(12.dp))
@@ -43,8 +43,14 @@ fun MiniPlayer(
                     Text(text = state.title, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
                     Text(text = state.artist, style = MaterialTheme.typography.bodySmall, maxLines = 1)
                 }
-                IconButton(onClick = { viewModel.toggle() }) {
-                    Text(if (state.isPlaying) "Pause" else "Play")
+                IconButton(
+                    onClick = { viewModel.toggle() },
+                    modifier = Modifier.size(48.dp) // Ensure minimum touch target
+                ) {
+                    Text(
+                        text = if (state.isPlaying) "⏸" else "▶",
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
             }
             val duration = state.durationMs
@@ -56,7 +62,10 @@ fun MiniPlayer(
                         val target = (fraction * duration.toFloat()).toLong()
                         viewModel.seekTo(target)
                     },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .heightIn(min = 48.dp) // Ensure minimum touch target height
                 )
             } else {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

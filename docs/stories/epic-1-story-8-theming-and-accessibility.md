@@ -1,7 +1,7 @@
 # Story 1.8 — Theming (M3, Dark Mode) & Accessibility Baseline (Epic 1)
 
 ## Status
-- Draft
+- ✅ **COMPLETED** - All theming and accessibility baseline features implemented
 
 ## Story
 As a user,
@@ -37,7 +37,24 @@ so that the app looks polished and is usable by everyone.
   - Manual contrast and TalkBack smoke checks.
 
 ## Definition of Done
-- App visually coherent in light/dark; a11y baseline complete.
+- ✅ App visually coherent in light/dark; a11y baseline complete.
+
+## Implementation Summary
+- ✅ **Material 3 Theme**: Complete theme system with dynamic color support (Android 12+)
+- ✅ **Dark Mode**: Full light/dark mode support with proper status bar adaptation
+- ✅ **Typography**: Material 3 typography scale implementation
+- ✅ **Accessibility**: WCAG AA baseline with content descriptions, touch targets ≥48dp
+- ✅ **Contrast Validation**: Utility for validating color contrast ratios
+- ✅ **Accessibility Extensions**: Reusable utilities for consistent a11y implementation
+
+## Files Created/Modified
+- `ui/theme/Color.kt` - Material 3 color schemes
+- `ui/theme/Type.kt` - Typography definitions  
+- `ui/theme/Theme.kt` - Main theme composable with dynamic color
+- `ui/accessibility/AccessibilityExtensions.kt` - A11y utilities
+- `ui/accessibility/ContrastValidation.kt` - Contrast validation tools
+- `ui/accessibility/AccessibilityGuide.md` - Implementation documentation
+- Updated `MainActivity.kt`, `TrendingScreen.kt`, `MiniPlayer.kt`, `BottomNav.kt` with theming and a11y improvements
 
 ## Project Structure Notes
 - Architecture docs under `docs/fullstack-architecture/*`.
