@@ -1,7 +1,7 @@
 # Story 2.1 — Now Playing Screen & Queue (Epic 2: Media Playback & Player UX)
 
 ## Status
-- Draft
+- ✅ **COMPLETED** - Now Playing screen and queue functionality implemented
 
 ## Story
 As a listener,
@@ -42,8 +42,24 @@ so that I can see details and control playback beyond the mini-player.
   - Handle unknown duration gracefully; clamp positions; UI loading states.
 
 ## Definition of Done
-- Now Playing and queue functional; next/prev works.
-- App compiles and runs; UI reflects playback state consistently.
+- ✅ Now Playing and queue functional; next/prev works.
+- ✅ App compiles and runs; UI reflects playback state consistently.
+
+## Implementation Summary
+- ✅ **PlayerRoute Composable**: Complete Now Playing screen with artwork, metadata, controls
+- ✅ **Queue Management**: Queue model with tap-to-jump functionality and current item highlighting
+- ✅ **PlaybackController Extensions**: Added queue operations (setQueue, skipNext, skipPrevious, playAt)
+- ✅ **Navigation Integration**: PlayerRoute added to NavHost with entry point from MiniPlayer
+- ✅ **State Management**: Queue and current index exposed as StateFlows
+- ✅ **UI Polish**: Proper loading states, error handling, and graceful duration handling
+
+## Files Created/Modified
+- `presentation/player/PlayerRoute.kt` - Complete Now Playing screen implementation
+- `playback/PlaybackController.kt` - Added queue operations and state management
+- `presentation/player/PlayerViewModel.kt` - Exposed PlaybackController for UI access
+- `presentation/player/MiniPlayer.kt` - Added navigation to PlayerRoute on tap
+- `MainActivity.kt` - Added PlayerRoute to NavHost
+- `presentation/home/trending/TrendingViewModel.kt` - Set queue when playing tracks
 
 ## Project Structure Notes
 - Architecture docs under `docs/fullstack-architecture/*`.

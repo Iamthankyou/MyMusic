@@ -1,6 +1,7 @@
 package com.example.mymusic.presentation.player
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Slider
@@ -20,13 +22,20 @@ import androidx.compose.material3.Slider
 @Composable
 fun MiniPlayer(
     modifier: Modifier = Modifier,
+    navController: NavController? = null,
     viewModel: PlayerViewModel = hiltViewModel()
 ) {
     val state by viewModel.nowPlaying.collectAsState()
     if (state.trackId == null) return
     Surface(tonalElevation = 2.dp, modifier = modifier) {
         Column(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .clickable(
+                    enabled = navController != null,
+                    onClick = { navController?.navigate("player") }
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(

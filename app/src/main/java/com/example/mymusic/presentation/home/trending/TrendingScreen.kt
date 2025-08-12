@@ -10,7 +10,9 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,6 +32,13 @@ import javax.inject.Inject
 @Composable
 fun TrendingScreen(viewModel: TrendingViewModel = hiltViewModel()) {
     val items: LazyPagingItems<Track> = viewModel.pagingData.collectAsLazyPagingItems()
+    
+    // Update loaded tracks when paging data changes
+    LaunchedEffect(items.itemSnapshotList) {
+        val tracks = items.itemSnapshotList.items
+        viewModel.updateLoadedTracks(tracks)
+    }
+    
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "Trending Tracks",

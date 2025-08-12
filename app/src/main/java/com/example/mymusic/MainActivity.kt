@@ -10,12 +10,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mymusic.presentation.home.trending.TrendingScreen
 import com.example.mymusic.presentation.player.MiniPlayer
+import com.example.mymusic.presentation.player.PlayerRoute
 import com.example.mymusic.presentation.navigation.BottomNavBar
 import com.example.mymusic.ui.theme.MyMusicTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,10 +31,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyMusicTheme {
                 val navController = rememberNavController()
+                val currentRoute by navController.currentBackStackEntryAsState()
+                val isPlayerScreen = currentRoute?.destination?.route == "player"
+                
                 Scaffold(
                     bottomBar = {
                         Column {
-                            MiniPlayer()
+                            if (!isPlayerScreen) {
+                                MiniPlayer(navController = navController)
+                            }
                             BottomNavBar(navController)
                         }
                     }
@@ -43,6 +52,7 @@ class MainActivity : ComponentActivity() {
                         composable("trending") { TrendingScreen() }
                         composable("explore") { PlaceholderScreen(title = "Explore") }
                         composable("downloads") { PlaceholderScreen(title = "Downloads") }
+                        composable("player") { PlayerRoute(navController) }
                     }
                 }
             }

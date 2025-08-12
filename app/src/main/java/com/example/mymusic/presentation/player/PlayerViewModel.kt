@@ -13,13 +13,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
-    private val controller: PlaybackController
+    val playbackController: PlaybackController
 ) : ViewModel() {
-    val nowPlaying: StateFlow<NowPlayingState> = controller.state
+    val nowPlaying: StateFlow<NowPlayingState> = playbackController.state
         .stateIn(viewModelScope, SharingStarted.Eagerly, NowPlayingState())
 
-    fun toggle() = controller.togglePlayPause()
-    fun seekTo(positionMs: Long) = controller.seekTo(positionMs)
+    fun toggle() = playbackController.togglePlayPause()
+    fun seekTo(positionMs: Long) = playbackController.seekTo(positionMs)
 }
 
 

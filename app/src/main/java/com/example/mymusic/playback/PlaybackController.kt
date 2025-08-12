@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.example.mymusic.domain.model.Track
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.media3.common.AudioAttributes
@@ -31,6 +32,12 @@ class PlaybackController @Inject constructor(
 
     private val _state = MutableStateFlow(NowPlayingState())
     val state: StateFlow<NowPlayingState> = _state
+
+    private val _queue = MutableStateFlow<List<Track>>(emptyList())
+    val queue: StateFlow<List<Track>> = _queue
+
+    private val _currentIndex = MutableStateFlow(0)
+    val currentIndex: StateFlow<Int> = _currentIndex
 
     private val scope = CoroutineScope(Dispatchers.Main)
 
@@ -96,6 +103,73 @@ class PlaybackController @Inject constructor(
         val clamped = positionMs.coerceIn(0L, duration)
         player.seekTo(clamped)
         scope.launch { _state.emit(_state.value.copy(positionMs = clamped, durationMs = duration)) }
+    }
+
+    fun setQueue(tracks: List<Track>) {
+        scope.launch {
+            _queue.emit(tracks)
+            if (tracks.isNotEmpty()) {
+                val mediaItems = tracks.map { track ->
+                    MediaItem.Builder()
+                        .setMediaId(track.id)
+                        .setUri(track.audioUrl)
+                        .build()
+                }
+                player.setMediaItems(mediaItems)
+                player.prepare()
+            }
+        }
+    }
+
+    fun skipNext() {
+        if (player.hasNextMediaItem()) {
+            player.seekToNextMediaItem()
+            scope.launch {
+                val newIndex = _currentIndex.value + 1
+                _currentIndex.emit(newIndex)
+                updateStateFromCurrentTrack()
+            }
+        }
+    }
+
+    fun skipPrevious() {
+        if (player.hasPreviousMediaItem()) {
+            player.seekToPreviousMediaItem()
+            scope.launch {
+                val newIndex = _currentIndex.value - 1
+                _currentIndex.emit(newIndex)
+                updateStateFromCurrentTrack()
+            }
+        }
+    }
+
+    fun playAt(index: Int) {
+        val tracks = _queue.value
+        if (index in tracks.indices) {
+            scope.launch {
+                _currentIndex.emit(index)
+                player.seekToDefaultPosition(index)
+                updateStateFromCurrentTrack()
+            }
+        }
+    }
+
+    private fun updateStateFromCurrentTrack() {
+        val tracks = _queue.value
+        val currentIndex = _currentIndex.value
+        if (currentIndex in tracks.indices) {
+            val track = tracks[currentIndex]
+            scope.launch {
+                _state.emit(
+                    _state.value.copy(
+                        trackId = track.id,
+                        title = track.title,
+                        artist = track.artist,
+                        artworkUrl = track.artworkUrl
+                    )
+                )
+            }
+        }
     }
 
     fun release() { player.release() }
