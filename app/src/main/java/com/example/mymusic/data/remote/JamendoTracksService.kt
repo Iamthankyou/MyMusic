@@ -14,13 +14,6 @@ interface JamendoTracksService {
     ): JamendoResponse<TrackDto>
 
     @GET("tracks")
-    suspend fun getNewReleases(
-        @Query("limit") limit: Int = 20,
-        @Query("offset") offset: Int = 0,
-        @Query("order") order: String = "releasedate"
-    ): JamendoResponse<TrackDto>
-
-    @GET("tracks")
     suspend fun searchTracks(
         @Query("search") query: String,
         @Query("limit") limit: Int = 20,

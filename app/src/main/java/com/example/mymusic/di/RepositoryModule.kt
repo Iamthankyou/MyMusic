@@ -1,9 +1,6 @@
 package com.example.mymusic.di
 
-import com.example.mymusic.data.local.AppDatabase
-import com.example.mymusic.data.local.SearchHistoryDao
 import com.example.mymusic.data.mapper.TrackMapper
-import com.example.mymusic.data.repository.DiscoveryRepository
 import com.example.mymusic.data.remote.JamendoTracksService
 import com.example.mymusic.data.repository.SearchRepository
 import com.example.mymusic.data.repository.TrackRepositoryImpl
@@ -35,30 +32,10 @@ abstract class RepositoryModule {
             
         @Provides
         @Singleton
-        fun provideAppDatabase(context: android.content.Context): AppDatabase {
-            return AppDatabase.getDatabase(context)
-        }
-            
-        @Provides
-        @Singleton
-        fun provideSearchHistoryDao(database: AppDatabase): SearchHistoryDao {
-            return database.searchHistoryDao()
-        }
-            
-        @Provides
-        @Singleton
         fun provideSearchRepository(
             service: JamendoTracksService,
-            trackMapper: TrackMapper,
-            searchHistoryDao: SearchHistoryDao
-        ): SearchRepository = SearchRepository(service, trackMapper, searchHistoryDao)
-            
-        @Provides
-        @Singleton
-        fun provideDiscoveryRepository(
-            service: JamendoTracksService,
             trackMapper: TrackMapper
-        ): DiscoveryRepository = DiscoveryRepository(service, trackMapper)
+        ): SearchRepository = SearchRepository(service, trackMapper)
     }
 }
 
