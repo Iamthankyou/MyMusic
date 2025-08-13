@@ -27,6 +27,8 @@ import com.example.mymusic.playback.PlaybackController
 import com.example.mymusic.presentation.components.AppEmpty
 import com.example.mymusic.presentation.components.AppError
 import com.example.mymusic.presentation.components.AppLoading
+import com.example.mymusic.presentation.components.*
+import com.example.mymusic.ui.theme.JetcasterSpacing
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -46,10 +48,15 @@ fun TrendingScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "Trending Tracks",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(16.dp)
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier
+                .padding(JetcasterSpacing.md)
+                .accessibleHeading(level = 1)
         )
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = JetcasterSpacing.md)
+        ) {
             val count = items.itemCount
             items(count) { index ->
                 val track = items[index]
@@ -90,28 +97,46 @@ fun TrendingScreen(
 
 @Composable
 private fun TrackRow(track: Track, onClick: () -> Unit = {}) {
-    ListItem(
-        headlineContent = { Text(track.title) },
-        supportingContent = { Text(track.artist) },
-        leadingContent = {
-            AsyncImage(
-                model = track.artworkUrl,
-                contentDescription = "Artwork for ${track.title} by ${track.artist}",
-                modifier = Modifier.size(56.dp)
-            )
-        },
-        modifier = Modifier
-            .clickable(
-                onClickLabel = "Play ${track.title} by ${track.artist}"
-            ) { onClick() }
-            .heightIn(min = 72.dp), // Ensure minimum touch target height
-        trailingContent = {
-            Text(
-                text = formatDurationMsToMinSec(track.durationMs),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    )
+    AnimatedListItem(visible = true) {
+        ListItem(
+            headlineContent = { 
+                Text(
+                    text = track.title,
+                    style = MaterialTheme.typography.titleMedium
+                ) 
+            },
+            supportingContent = { 
+                Text(
+                    text = track.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                ) 
+            },
+            leadingContent = {
+                AsyncImage(
+                    model = track.artworkUrl,
+                    contentDescription = "Artwork for ${track.title} by ${track.artist}",
+                    modifier = Modifier
+                        .size(56.dp)
+                        .accessibleImage("Artwork for ${track.title} by ${track.artist}")
+                )
+            },
+            modifier = Modifier
+                .accessibleClickable(
+                    onClickLabel = "Play ${track.title} by ${track.artist}",
+                    role = androidx.compose.ui.semantics.Role.Button
+                ) { onClick() }
+                .heightIn(min = 72.dp)
+                .accessibleTouchTarget(),
+            trailingContent = {
+                Text(
+                    text = formatDurationMsToMinSec(track.durationMs),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        )
+    }
 }
 
 private fun formatDurationMsToMinSec(durationMs: Long): String {

@@ -18,7 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mymusic.presentation.player.MiniPlayer
 import com.example.mymusic.presentation.navigation.BottomNavBar
 import com.example.mymusic.presentation.navigation.NavGraph
-import com.example.mymusic.ui.theme.MyMusicTheme
+import com.example.mymusic.ui.theme.JetcasterTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyMusicTheme {
+            JetcasterTheme {
                 val navController = rememberNavController()
                 val currentRoute by navController.currentBackStackEntryAsState()
                 val isPlayerScreen = currentRoute?.destination?.route == "player"
