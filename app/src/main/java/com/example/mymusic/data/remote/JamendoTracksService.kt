@@ -51,6 +51,46 @@ interface JamendoTracksService {
         @Query("orderby") orderBy: String = "popularity_total",
         @Query("include") include: String = "musicinfo"
     ): SearchResponseDto
+    
+    // Detail endpoints for Story 3.4
+    @GET("tracks/")
+    suspend fun getTrackDetail(
+        @Query("id") trackId: String,
+        @Query("include") include: String = "musicinfo"
+    ): SearchResponseDto
+    
+    @GET("artists/")
+    suspend fun getArtistDetail(
+        @Query("id") artistId: String,
+        @Query("include") include: String = "musicinfo"
+    ): ArtistResponseDto
+    
+    @GET("artists/")
+    suspend fun getArtistTracks(
+        @Query("id") artistId: String,
+        @Query("limit") limit: Int = 20,
+        @Query("offset") offset: Int = 0
+    ): SearchResponseDto
+    
+    @GET("albums/")
+    suspend fun getAlbumDetail(
+        @Query("id") albumId: String,
+        @Query("include") include: String = "musicinfo"
+    ): AlbumResponseDto
+    
+    @GET("tracks/")
+    suspend fun getRelatedTracks(
+        @Query("id") trackId: String,
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int = 0
+    ): SearchResponseDto
+    
+    @GET("artists/")
+    suspend fun getRelatedArtists(
+        @Query("id") artistId: String,
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int = 0
+    ): ArtistResponseDto
 }
 
 @Serializable
@@ -106,6 +146,51 @@ data class TagsDto(
     val genres: List<String>? = null,
     val instruments: List<String>? = null,
     val vartags: List<String>? = null
+)
+
+// New DTOs for Story 3.4
+@Serializable
+data class ArtistResponseDto(
+    val headers: HeadersDto? = null,
+    val results: List<ArtistDto> = emptyList()
+)
+
+@Serializable
+data class ArtistDto(
+    val id: String = "",
+    val name: String = "",
+    val image: String = "",
+    val shorturl: String = "",
+    val shareurl: String = "",
+    val website: String = "",
+    val joindate: String = "",
+    val tracks: List<TrackDto> = emptyList(),
+    val albums: List<AlbumDto> = emptyList(),
+    val musicinfo: MusicInfoDto? = null
+)
+
+@Serializable
+data class AlbumResponseDto(
+    val headers: HeadersDto? = null,
+    val results: List<AlbumDto> = emptyList()
+)
+
+@Serializable
+data class AlbumDto(
+    val id: String = "",
+    val name: String = "",
+    val artist_id: String = "",
+    val artist_name: String = "",
+    val releasedate: String = "",
+    val image: String = "",
+    val tracks: List<TrackDto> = emptyList(),
+    val musicinfo: MusicInfoDto? = null
+)
+
+@Serializable
+data class LyricsDto(
+    val lyrics: String = "",
+    val language: String = ""
 )
 
 

@@ -21,7 +21,8 @@ import com.example.mymusic.presentation.discovery.components.TrendingSection
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiscoveryScreen(
-    viewModel: DiscoveryViewModel = hiltViewModel()
+    viewModel: DiscoveryViewModel = hiltViewModel(),
+    navController: androidx.navigation.NavController? = null
 ) {
     val trendingTracks by viewModel.trendingTracks.collectAsState()
     val newReleases by viewModel.newReleases.collectAsState()
@@ -125,10 +126,13 @@ fun DiscoveryScreen(
                     }
                     item {
                         if (featuredTracks.isNotEmpty()) {
-                            FeaturedContent(
-                                tracks = featuredTracks,
-                                onTrackClicked = { track -> viewModel.onTrackClicked(track) }
-                            )
+                                                           FeaturedContent(
+                                   tracks = featuredTracks,
+                                   onTrackClicked = { track -> 
+                                       viewModel.onTrackClicked(track)
+                                       navController?.navigate("track_detail/${track.id}")
+                                   }
+                               )
                         } else {
                             Text("No featured tracks available", style = MaterialTheme.typography.bodyMedium)
                         }
@@ -144,10 +148,13 @@ fun DiscoveryScreen(
                     }
                     item {
                         if (trendingTracks.isNotEmpty()) {
-                            TrendingSection(
-                                tracks = trendingTracks,
-                                onTrackClicked = { track -> viewModel.onTrackClicked(track) }
-                            )
+                                                           TrendingSection(
+                                   tracks = trendingTracks,
+                                   onTrackClicked = { track -> 
+                                       viewModel.onTrackClicked(track)
+                                       navController?.navigate("track_detail/${track.id}")
+                                   }
+                               )
                         } else {
                             Text("No trending tracks available", style = MaterialTheme.typography.bodyMedium)
                         }
@@ -163,10 +170,13 @@ fun DiscoveryScreen(
                     }
                     item {
                         if (newReleases.isNotEmpty()) {
-                            NewReleasesSection(
-                                tracks = newReleases,
-                                onTrackClicked = { track -> viewModel.onTrackClicked(track) }
-                            )
+                                                           NewReleasesSection(
+                                   tracks = newReleases,
+                                   onTrackClicked = { track -> 
+                                       viewModel.onTrackClicked(track)
+                                       navController?.navigate("track_detail/${track.id}")
+                                   }
+                               )
                         } else {
                             Text("No new releases available", style = MaterialTheme.typography.bodyMedium)
                         }
@@ -198,10 +208,13 @@ fun DiscoveryScreen(
                         }
                         if (genreTracks.isNotEmpty()) {
                             items(genreTracks) { track ->
-                                com.example.mymusic.presentation.components.TrackItem(
-                                    track = track,
-                                    onClick = { viewModel.onTrackClicked(track) }
-                                )
+                                                                   com.example.mymusic.presentation.components.TrackItem(
+                                       track = track,
+                                       onClick = { 
+                                           viewModel.onTrackClicked(track)
+                                           navController?.navigate("track_detail/${track.id}")
+                                       }
+                                   )
                             }
                         } else {
                             item {

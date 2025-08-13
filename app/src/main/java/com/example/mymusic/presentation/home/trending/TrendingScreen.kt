@@ -1,5 +1,6 @@
 package com.example.mymusic.presentation.home.trending
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.clickable
@@ -30,7 +31,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @Composable
-fun TrendingScreen(viewModel: TrendingViewModel = hiltViewModel()) {
+fun TrendingScreen(
+    viewModel: TrendingViewModel = hiltViewModel(),
+    navController: androidx.navigation.NavController? = null
+) {
     val items: LazyPagingItems<Track> = viewModel.pagingData.collectAsLazyPagingItems()
     
     // Update loaded tracks when paging data changes
@@ -49,7 +53,15 @@ fun TrendingScreen(viewModel: TrendingViewModel = hiltViewModel()) {
             val count = items.itemCount
             items(count) { index ->
                 val track = items[index]
-                if (track != null) TrackRow(track, onClick = { viewModel.onTrackClicked(track) })
+                if (track != null) TrackRow(
+                    track, 
+                    onClick = { 
+                        viewModel.onTrackClicked(track)
+                        // Navigate to track detail if navController is available
+                        Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
+                        navController?.navigate("track_detail/${track.id}")
+                    }
+                )
             }
             items.apply {
                 when {

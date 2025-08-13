@@ -3,8 +3,11 @@ package com.example.mymusic.di
 import android.content.Context
 import com.example.mymusic.data.local.AppDatabase
 import com.example.mymusic.data.local.SearchHistoryDao
+import com.example.mymusic.data.mapper.AlbumMapper
+import com.example.mymusic.data.mapper.ArtistMapper
 import com.example.mymusic.data.mapper.TrackMapper
 import com.example.mymusic.data.remote.JamendoTracksService
+import com.example.mymusic.data.repository.DetailRepository
 import com.example.mymusic.data.repository.DiscoveryRepository
 import com.example.mymusic.data.repository.SearchRepository
 import com.example.mymusic.data.repository.TrackRepositoryImpl
@@ -37,6 +40,14 @@ abstract class RepositoryModule {
         
         @Provides
         @Singleton
+        fun provideArtistMapper(): ArtistMapper = ArtistMapper
+        
+        @Provides
+        @Singleton
+        fun provideAlbumMapper(): AlbumMapper = AlbumMapper
+        
+        @Provides
+        @Singleton
         fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
             AppDatabase.getDatabase(context)
             
@@ -58,6 +69,15 @@ abstract class RepositoryModule {
             service: JamendoTracksService,
             trackMapper: TrackMapper
         ): DiscoveryRepository = DiscoveryRepository(service, trackMapper)
+        
+        @Provides
+        @Singleton
+        fun provideDetailRepository(
+            service: JamendoTracksService,
+            trackMapper: TrackMapper,
+            artistMapper: ArtistMapper,
+            albumMapper: AlbumMapper
+        ): DetailRepository = DetailRepository(service, trackMapper, artistMapper, albumMapper)
     }
 }
 
