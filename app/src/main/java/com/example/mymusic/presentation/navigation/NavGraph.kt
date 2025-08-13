@@ -1,6 +1,7 @@
 package com.example.mymusic.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import com.example.mymusic.presentation.discovery.DiscoveryScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,8 +28,7 @@ fun NavGraph(
         }
         
         composable("explore") {
-            // TODO: Implement Explore screen
-            TrendingScreen() // Temporary placeholder
+            DiscoveryScreen()
         }
         
         composable("downloads") {

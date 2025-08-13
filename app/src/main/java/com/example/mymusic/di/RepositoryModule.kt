@@ -5,6 +5,7 @@ import com.example.mymusic.data.local.AppDatabase
 import com.example.mymusic.data.local.SearchHistoryDao
 import com.example.mymusic.data.mapper.TrackMapper
 import com.example.mymusic.data.remote.JamendoTracksService
+import com.example.mymusic.data.repository.DiscoveryRepository
 import com.example.mymusic.data.repository.SearchRepository
 import com.example.mymusic.data.repository.TrackRepositoryImpl
 import com.example.mymusic.domain.repository.TrackRepository
@@ -50,6 +51,13 @@ abstract class RepositoryModule {
             service: JamendoTracksService,
             trackMapper: TrackMapper
         ): SearchRepository = SearchRepository(service, trackMapper)
+        
+        @Provides
+        @Singleton
+        fun provideDiscoveryRepository(
+            service: JamendoTracksService,
+            trackMapper: TrackMapper
+        ): DiscoveryRepository = DiscoveryRepository(service, trackMapper)
     }
 }
 
