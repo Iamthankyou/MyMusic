@@ -15,6 +15,11 @@ class TrendingTracksPagingSourceTest {
             val slice = items.drop(offset).take(limit)
             return JamendoResponse(results = slice)
         }
+        
+        override suspend fun searchTracks(query: String, limit: Int, offset: Int, order: String): JamendoResponse<TrackDto> {
+            val slice = items.drop(offset).take(limit)
+            return JamendoResponse(results = slice)
+        }
     }
 
     @Test

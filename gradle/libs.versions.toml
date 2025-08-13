@@ -1,6 +1,6 @@
 [versions]
 agp = "8.5.2"
-kotlin = "1.9.24"
+kotlin = "1.9.22"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -14,10 +14,12 @@ constraintlayout = "2.1.4"
 compose-bom = "2024.06.00"
 navigation = "2.7.7"
 paging = "3.3.2"
+room = "2.3.0"
 coil = "2.6.0"
 lifecycle = "2.8.3"
 activity-compose = "1.9.1"
 hilt-navigation-compose = "1.2.0"
+ksp = "1.9.24-1.0.19"
 
 # DI & Networking
 hilt = "2.51.1"
@@ -76,6 +78,11 @@ media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "medi
 
 # Media
 androidx-media = { group = "androidx.media", name = "media", version = "1.7.0" }
+
+# Room
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

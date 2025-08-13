@@ -1,6 +1,8 @@
 package com.example.mymusic.di
 
+import com.example.mymusic.data.local.SearchHistoryDao
 import com.example.mymusic.data.repository.SearchRepository
+import com.example.mymusic.domain.usecase.SearchHistoryUseCase
 import com.example.mymusic.domain.usecase.SearchUseCase
 import dagger.Module
 import dagger.Provides
@@ -16,5 +18,11 @@ object UseCaseModule {
     @Singleton
     fun provideSearchUseCase(searchRepository: SearchRepository): SearchUseCase {
         return SearchUseCase(searchRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSearchHistoryUseCase(searchHistoryDao: SearchHistoryDao): SearchHistoryUseCase {
+        return SearchHistoryUseCase(searchHistoryDao)
     }
 }
