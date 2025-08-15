@@ -9,11 +9,14 @@ import com.example.mymusic.domain.model.Track
 import com.example.mymusic.domain.usecase.DetailUseCase
 import com.example.mymusic.playback.PlaybackController
 import com.example.mymusic.domain.usecase.DownloadTrackUseCase
+import com.example.mymusic.domain.repository.DownloadRepository
+import com.example.mymusic.data.local.DownloadStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,7 +24,8 @@ import javax.inject.Inject
 class DetailViewModel @Inject constructor(
     private val detailUseCase: DetailUseCase,
     private val playbackController: PlaybackController,
-    private val downloadTrackUseCase: DownloadTrackUseCase
+    private val downloadTrackUseCase: DownloadTrackUseCase,
+    private val downloadRepository: DownloadRepository
 ) : ViewModel() {
     
     private val _trackDetail = MutableStateFlow<Track?>(null)
@@ -169,5 +173,19 @@ class DetailViewModel @Inject constructor(
                 println("Download failed: ${e.message}")
             }
         }
+    }
+    
+    // Get download status for a track
+    suspend fun getDownloadStatus(trackId: String): DownloadStatus? {
+        return try {
+            downloadRepository.getDownloadStatus(trackId).first()
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    // Get download status as Flow for reactive UI updates
+    fun getDownloadStatusFlow(trackId: String): Flow<DownloadStatus?> {
+        return downloadRepository.getDownloadStatus(trackId)
     }
 }

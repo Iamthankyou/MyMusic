@@ -9,11 +9,15 @@ import androidx.paging.cachedIn
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import com.example.mymusic.data.paging.TrendingTracksPagingSource
 import com.example.mymusic.data.remote.JamendoTracksService
 import com.example.mymusic.domain.model.Track
 import com.example.mymusic.playback.PlaybackController
 import com.example.mymusic.domain.usecase.DownloadTrackUseCase
+import com.example.mymusic.domain.repository.DownloadRepository
+import com.example.mymusic.data.local.DownloadStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -23,7 +27,8 @@ import javax.inject.Inject
 class TrendingViewModel @Inject constructor(
     private val service: JamendoTracksService,
     private val controller: PlaybackController,
-    private val downloadTrackUseCase: DownloadTrackUseCase
+    private val downloadTrackUseCase: DownloadTrackUseCase,
+    private val downloadRepository: DownloadRepository
 ) : ViewModel() {
 
     private val _loadedTracks = MutableStateFlow<List<Track>>(emptyList())
@@ -81,6 +86,20 @@ class TrendingViewModel @Inject constructor(
                 // TODO: Show error message
                 println("Download failed: ${e.message}")
             }
+        }
+    }
+    
+    // Get download status as Flow for reactive UI updates
+    fun getDownloadStatusFlow(trackId: String): Flow<DownloadStatus?> {
+        return downloadRepository.getDownloadStatus(trackId)
+    }
+    
+    // Get download status synchronously (for immediate UI updates)
+    suspend fun getDownloadStatus(trackId: String): DownloadStatus? {
+        return try {
+            downloadRepository.getDownloadStatus(trackId).first()
+        } catch (e: Exception) {
+            null
         }
     }
 }

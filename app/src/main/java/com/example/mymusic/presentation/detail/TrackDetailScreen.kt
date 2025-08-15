@@ -17,8 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.mymusic.presentation.components.TrackItem
+import com.example.mymusic.presentation.components.DownloadButton
 import com.example.mymusic.presentation.detail.components.RelatedContent
 import com.example.mymusic.presentation.detail.components.ShareButton
+import com.example.mymusic.data.local.DownloadStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,10 +100,17 @@ fun TrackDetailScreen(
                 ) {
                     item {
                         trackDetail?.let { track ->
+                            // Get download status as Flow for real-time updates
+                            val downloadStatusFlow = remember(track.id) {
+                                viewModel.getDownloadStatusFlow(track.id)
+                            }
+                            val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
+                            
                             TrackDetailHeader(
                                 track = track,
                                 onPlayClick = { viewModel.onTrackClicked(track) },
-                                onDownloadClick = { viewModel.onDownloadClicked(track) }
+                                onDownloadClick = { viewModel.onDownloadClicked(track) },
+                                downloadStatus = downloadStatus
                             )
                         }
                     }
@@ -131,7 +140,8 @@ fun TrackDetailScreen(
 private fun TrackDetailHeader(
     track: com.example.mymusic.domain.model.Track,
     onPlayClick: () -> Unit,
-    onDownloadClick: () -> Unit
+    onDownloadClick: () -> Unit,
+    downloadStatus: DownloadStatus?
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -165,18 +175,18 @@ private fun TrackDetailHeader(
                 }
                 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = onDownloadClick,
+                    // Download button with status
+                    DownloadButton(
+                        downloadStatus = downloadStatus,
+                        onDownloadClick = onDownloadClick,
+                        onPlayClick = onPlayClick,
                         modifier = Modifier.size(48.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Download,
-                            contentDescription = "Download",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                    )
+                    
+                    // Play button
                     IconButton(
                         onClick = onPlayClick,
                         modifier = Modifier.size(56.dp)

@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -62,23 +63,33 @@ fun TrendingScreen(
         )
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = JetcasterSpacing.md)
+            contentPadding = PaddingValues(horizontal = JetcasterSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val count = items.itemCount
             items(count) { index ->
                 val track = items[index]
-                if (track != null) TrackRow(
-                    track, 
-                    onClick = { 
-                        viewModel.onTrackClicked(track)
-                        // Navigate to track detail if navController is available
-                        Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
-                        navController?.navigate("track_detail/${track.id}")
-                    },
-                    onDownloadClick = {
-                        viewModel.onDownloadClicked(track)
+                if (track != null) {
+                    // Get download status as Flow for real-time updates
+                    val downloadStatusFlow = remember(track.id) {
+                        viewModel.getDownloadStatusFlow(track.id)
                     }
-                )
+                    val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
+                    
+                    TrackItem(
+                        track = track,
+                        onClick = { 
+                            viewModel.onTrackClicked(track)
+                            // Navigate to track detail if navController is available
+                            Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
+                            navController?.navigate("track_detail/${track.id}")
+                        },
+                        downloadStatus = downloadStatus,
+                        onDownloadClick = {
+                            viewModel.onDownloadClicked(track)
+                        }
+                    )
+                }
             }
             items.apply {
                 when {
@@ -105,6 +116,7 @@ fun TrendingScreen(
     }
 }
 
+// Keep TrackRow for backward compatibility but it's no longer used
 @Composable
 private fun TrackRow(
     track: Track, 
