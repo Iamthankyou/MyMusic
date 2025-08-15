@@ -13,6 +13,7 @@ import com.example.mymusic.data.paging.TrendingTracksPagingSource
 import com.example.mymusic.data.remote.JamendoTracksService
 import com.example.mymusic.domain.model.Track
 import com.example.mymusic.playback.PlaybackController
+import com.example.mymusic.domain.usecase.DownloadTrackUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -21,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class TrendingViewModel @Inject constructor(
     private val service: JamendoTracksService,
-    private val controller: PlaybackController
+    private val controller: PlaybackController,
+    private val downloadTrackUseCase: DownloadTrackUseCase
 ) : ViewModel() {
 
     private val _loadedTracks = MutableStateFlow<List<Track>>(emptyList())
@@ -68,6 +70,18 @@ class TrendingViewModel @Inject constructor(
     
     fun updateLoadedTracks(tracks: List<Track>) {
         _loadedTracks.value = tracks
+    }
+    
+    fun onDownloadClicked(track: Track) {
+        viewModelScope.launch {
+            try {
+                downloadTrackUseCase(track)
+                // TODO: Show success message or update UI
+            } catch (e: Exception) {
+                // TODO: Show error message
+                println("Download failed: ${e.message}")
+            }
+        }
     }
 }
 

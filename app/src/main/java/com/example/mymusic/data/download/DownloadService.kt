@@ -66,10 +66,11 @@ class DownloadService : IntentService("DownloadService") {
             // Enqueue download
             val downloadId = downloadManager.enqueue(request)
             
-            // Update database with download ID
+            // Update database with download ID and status
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     downloadRepository.updateDownloadId(trackId, downloadId)
+                    downloadRepository.updateDownloadStatus(trackId, DownloadStatus.DOWNLOADING, 0)
                     Log.d(TAG, "Download started for track: $title, ID: $downloadId")
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to update download ID in database", e)

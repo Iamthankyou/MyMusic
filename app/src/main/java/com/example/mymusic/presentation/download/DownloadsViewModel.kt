@@ -5,15 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.mymusic.data.local.DownloadEntity
 import com.example.mymusic.domain.usecase.DeleteDownloadUseCase
 import com.example.mymusic.domain.usecase.GetDownloadedTracksUseCase
+import com.example.mymusic.domain.usecase.CancelDownloadUseCase
+import com.example.mymusic.playback.PlaybackController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import android.util.Log
 import javax.inject.Inject
 
 @HiltViewModel
 class DownloadsViewModel @Inject constructor(
     private val getDownloadedTracksUseCase: GetDownloadedTracksUseCase,
-    private val deleteDownloadUseCase: DeleteDownloadUseCase
+    private val deleteDownloadUseCase: DeleteDownloadUseCase,
+    private val cancelDownloadUseCase: CancelDownloadUseCase,
+    private val playbackController: PlaybackController
 ) : ViewModel() {
     
     private val _searchQuery = MutableStateFlow("")
@@ -43,11 +48,15 @@ class DownloadsViewModel @Inject constructor(
                 }
                 
                 DownloadsState(
-                    activeDownloads = downloads.filter { it.status == com.example.mymusic.data.local.DownloadStatus.DOWNLOADING },
+                    activeDownloads = downloads.filter { 
+                        it.status == com.example.mymusic.data.local.DownloadStatus.DOWNLOADING || 
+                        it.status == com.example.mymusic.data.local.DownloadStatus.PENDING 
+                    },
                     completedDownloads = filteredDownloads.filter { it.status == com.example.mymusic.data.local.DownloadStatus.COMPLETED },
                     searchQuery = query
                 )
             }.collect { state ->
+                Log.d("DownloadsViewModel", "Downloads state updated: active=${state.activeDownloads.size}, completed=${state.completedDownloads.size}")
                 _downloadsState.value = state
             }
         }
@@ -66,8 +75,14 @@ class DownloadsViewModel @Inject constructor(
     }
     
     fun cancelDownload(trackId: String) {
-        // Implementation for canceling download
-        // This would typically call a use case to cancel the download
+        viewModelScope.launch {
+            try {
+                cancelDownloadUseCase(trackId)
+                // Downloads will be reloaded automatically through the flow
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
     }
     
     fun deleteDownload(trackId: String) {
@@ -81,14 +96,52 @@ class DownloadsViewModel @Inject constructor(
         }
     }
     
+    fun playDownloadedTrack(download: DownloadEntity) {
+        try {
+            // Use the local file path for playback
+            val localFilePath = download.localFilePath
+            if (localFilePath.isNotEmpty()) {
+                playbackController.play(
+                    trackId = download.trackId,
+                    title = download.title,
+                    artist = download.artist,
+                    artworkUrl = download.imageUrl,
+                    url = "file://$localFilePath"
+                )
+                Log.d("DownloadsViewModel", "Playing downloaded track: ${download.title} from $localFilePath")
+            } else {
+                Log.e("DownloadsViewModel", "No local file path for track: ${download.title}")
+            }
+        } catch (e: Exception) {
+            Log.e("DownloadsViewModel", "Error playing downloaded track: ${download.title}", e)
+        }
+    }
+    
     fun shareDownload(download: DownloadEntity) {
-        // Implementation for sharing download
+        // TODO: Implement share functionality
         // This would typically open a share intent
+        println("Sharing download: ${download.title}")
     }
     
     fun openSettings() {
-        // Implementation for opening download settings
+        // TODO: Implement settings navigation
         // This would typically navigate to settings screen
+        println("Opening download settings")
+    }
+    
+    // Debug method to check downloads
+    fun debugDownloads() {
+        viewModelScope.launch {
+            try {
+                val downloads = getDownloadedTracksUseCase().first()
+                Log.d("DownloadsViewModel", "Debug: Found ${downloads.size} downloads in database")
+                downloads.forEach { download ->
+                    Log.d("DownloadsViewModel", "Debug: Download - ${download.title} (${download.status}) - Progress: ${download.progress}% - DownloadId: ${download.downloadId}")
+                }
+            } catch (e: Exception) {
+                Log.e("DownloadsViewModel", "Debug: Error getting downloads", e)
+            }
+        }
     }
 }
 

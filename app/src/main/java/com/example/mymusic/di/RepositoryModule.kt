@@ -90,6 +90,14 @@ abstract class RepositoryModule {
             artistMapper: ArtistMapper,
             albumMapper: AlbumMapper
         ): DetailRepository = DetailRepository(service, trackMapper, artistMapper, albumMapper)
+        
+        @Provides
+        @Singleton
+        fun provideDownloadProgressMonitor(
+            @ApplicationContext context: Context,
+            downloadRepository: DownloadRepository
+        ): com.example.mymusic.data.download.DownloadProgressMonitor =
+            com.example.mymusic.data.download.DownloadProgressMonitor(context, downloadRepository)
     }
 }
 

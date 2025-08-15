@@ -10,6 +10,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.DownloadDone
+import androidx.compose.material.icons.filled.Downloading
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +29,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 // Use index-based items() to avoid paging-compose items import conflicts
 import coil.compose.AsyncImage
 import com.example.mymusic.domain.model.Track
+import com.example.mymusic.data.local.DownloadStatus
 import com.example.mymusic.playback.PlaybackController
 import com.example.mymusic.presentation.components.AppEmpty
 import com.example.mymusic.presentation.components.AppError
@@ -67,6 +74,9 @@ fun TrendingScreen(
                         // Navigate to track detail if navController is available
                         Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
                         navController?.navigate("track_detail/${track.id}")
+                    },
+                    onDownloadClick = {
+                        viewModel.onDownloadClicked(track)
                     }
                 )
             }
@@ -96,7 +106,11 @@ fun TrendingScreen(
 }
 
 @Composable
-private fun TrackRow(track: Track, onClick: () -> Unit = {}) {
+private fun TrackRow(
+    track: Track, 
+    onClick: () -> Unit = {},
+    onDownloadClick: () -> Unit = {}
+) {
     AnimatedListItem(visible = true) {
         ListItem(
             headlineContent = { 
@@ -129,11 +143,26 @@ private fun TrackRow(track: Track, onClick: () -> Unit = {}) {
                 .heightIn(min = 72.dp)
                 .accessibleTouchTarget(),
             trailingContent = {
-                Text(
-                    text = formatDurationMsToMinSec(track.durationMs),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = formatDurationMsToMinSec(track.durationMs),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    IconButton(
+                        onClick = onDownloadClick,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Download,
+                            contentDescription = "Download ${track.title}",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         )
     }

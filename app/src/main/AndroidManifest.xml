@@ -47,6 +47,14 @@
         <service
             android:name=".data.download.DownloadService"
             android:exported="false" />
+            
+        <receiver
+            android:name=".data.download.DownloadProgressReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ import com.example.mymusic.domain.model.Artist
 import com.example.mymusic.domain.model.Track
 import com.example.mymusic.domain.usecase.DetailUseCase
 import com.example.mymusic.playback.PlaybackController
+import com.example.mymusic.domain.usecase.DownloadTrackUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     private val detailUseCase: DetailUseCase,
-    private val playbackController: PlaybackController
+    private val playbackController: PlaybackController,
+    private val downloadTrackUseCase: DownloadTrackUseCase
 ) : ViewModel() {
     
     private val _trackDetail = MutableStateFlow<Track?>(null)
@@ -155,5 +157,17 @@ class DetailViewModel @Inject constructor(
     
     fun clearError() {
         _error.value = null
+    }
+    
+    fun onDownloadClicked(track: Track) {
+        viewModelScope.launch {
+            try {
+                downloadTrackUseCase(track)
+                // TODO: Show success message or update UI
+            } catch (e: Exception) {
+                // TODO: Show error message
+                println("Download failed: ${e.message}")
+            }
+        }
     }
 }

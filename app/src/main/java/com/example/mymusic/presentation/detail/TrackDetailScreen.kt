@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -99,7 +100,8 @@ fun TrackDetailScreen(
                         trackDetail?.let { track ->
                             TrackDetailHeader(
                                 track = track,
-                                onPlayClick = { viewModel.onTrackClicked(track) }
+                                onPlayClick = { viewModel.onTrackClicked(track) },
+                                onDownloadClick = { viewModel.onDownloadClicked(track) }
                             )
                         }
                     }
@@ -128,7 +130,8 @@ fun TrackDetailScreen(
 @Composable
 private fun TrackDetailHeader(
     track: com.example.mymusic.domain.model.Track,
-    onPlayClick: () -> Unit
+    onPlayClick: () -> Unit,
+    onDownloadClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -161,15 +164,29 @@ private fun TrackDetailHeader(
                     )
                 }
                 
-                IconButton(
-                    onClick = onPlayClick,
-                    modifier = Modifier.size(56.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Play",
-                        modifier = Modifier.size(32.dp)
-                    )
+                    IconButton(
+                        onClick = onDownloadClick,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Download,
+                            contentDescription = "Download",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = onPlayClick,
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "Play",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
             }
         }

@@ -9,6 +9,7 @@ import com.example.mymusic.presentation.home.trending.TrendingScreen
 import com.example.mymusic.presentation.search.SearchScreen
 import com.example.mymusic.presentation.player.PlayerRoute
 import com.example.mymusic.presentation.detail.TrackDetailScreen
+import com.example.mymusic.presentation.download.DownloadsScreen
 
 @Composable
 fun NavGraph(
@@ -33,8 +34,11 @@ fun NavGraph(
         }
         
         composable("downloads") {
-            // TODO: Implement Downloads screen
-            TrendingScreen() // Temporary placeholder
+            DownloadsScreen(
+                onNavigateToPlayer = { trackId ->
+                    navController.navigate("player")
+                }
+            )
         }
         
         composable("player") {

@@ -9,6 +9,7 @@ import com.example.mymusic.domain.usecase.SearchUseCase
 import com.example.mymusic.domain.usecase.DownloadTrackUseCase
 import com.example.mymusic.domain.usecase.GetDownloadedTracksUseCase
 import com.example.mymusic.domain.usecase.DeleteDownloadUseCase
+import com.example.mymusic.domain.usecase.CancelDownloadUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -55,5 +56,9 @@ object UseCaseModule {
         return DeleteDownloadUseCase(downloadRepository)
     }
     
-
+    @Provides
+    @Singleton
+    fun provideCancelDownloadUseCase(downloadRepository: com.example.mymusic.domain.repository.DownloadRepository): CancelDownloadUseCase {
+        return CancelDownloadUseCase(downloadRepository)
+    }
 }

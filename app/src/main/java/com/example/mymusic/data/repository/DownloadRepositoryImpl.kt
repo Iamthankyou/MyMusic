@@ -17,6 +17,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -40,7 +42,9 @@ class DownloadRepositoryImpl @Inject constructor(
             }
             
             // Check if track is already downloaded
-            val existingDownload = downloadDao.getDownloadByTrackId(track.id).first()
+            val existingDownload = withContext(Dispatchers.IO) {
+                downloadDao.getDownloadByTrackId(track.id).first()
+            }
             if (existingDownload?.status == DownloadStatus.COMPLETED) {
                 return Result.failure(Exception("Track already downloaded"))
             }
@@ -61,7 +65,9 @@ class DownloadRepositoryImpl @Inject constructor(
             )
             
             // Insert into database
-            downloadDao.insertDownload(downloadEntity)
+            withContext(Dispatchers.IO) {
+                downloadDao.insertDownload(downloadEntity)
+            }
             
             // Start download service
             val intent = Intent(context, DownloadService::class.java).apply {
@@ -83,12 +89,16 @@ class DownloadRepositoryImpl @Inject constructor(
     
     override suspend fun cancelDownload(trackId: String): Result<Unit> {
         return try {
-            val download = downloadDao.getDownloadByTrackId(trackId).first()
+            val download = withContext(Dispatchers.IO) {
+                downloadDao.getDownloadByTrackId(trackId).first()
+            }
             download?.downloadId?.let { downloadId ->
                 downloadManager.remove(downloadId)
             }
             
-            downloadDao.updateDownloadStatus(trackId, DownloadStatus.FAILED, 0)
+            withContext(Dispatchers.IO) {
+                downloadDao.updateDownloadStatus(trackId, DownloadStatus.FAILED, 0)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -97,7 +107,9 @@ class DownloadRepositoryImpl @Inject constructor(
     
     override suspend fun pauseDownload(trackId: String): Result<Unit> {
         return try {
-            downloadDao.updateDownloadStatus(trackId, DownloadStatus.PENDING, 0)
+            withContext(Dispatchers.IO) {
+                downloadDao.updateDownloadStatus(trackId, DownloadStatus.PENDING, 0)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -106,7 +118,9 @@ class DownloadRepositoryImpl @Inject constructor(
     
     override suspend fun resumeDownload(trackId: String): Result<Unit> {
         return try {
-            downloadDao.updateDownloadStatus(trackId, DownloadStatus.DOWNLOADING, 0)
+            withContext(Dispatchers.IO) {
+                downloadDao.updateDownloadStatus(trackId, DownloadStatus.DOWNLOADING, 0)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -116,7 +130,9 @@ class DownloadRepositoryImpl @Inject constructor(
     override suspend fun deleteDownload(trackId: String): Result<Unit> {
         return try {
             // Remove from download manager if active
-            val download = downloadDao.getDownloadByTrackId(trackId).first()
+            val download = withContext(Dispatchers.IO) {
+                downloadDao.getDownloadByTrackId(trackId).first()
+            }
             download?.downloadId?.let { downloadId ->
                 downloadManager.remove(downloadId)
             }
@@ -128,7 +144,9 @@ class DownloadRepositoryImpl @Inject constructor(
             }
             
             // Update database
-            downloadDao.updateDownloadStatus(trackId, DownloadStatus.DELETED, 0)
+            withContext(Dispatchers.IO) {
+                downloadDao.updateDownloadStatus(trackId, DownloadStatus.DELETED, 0)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -167,7 +185,9 @@ class DownloadRepositoryImpl @Inject constructor(
     
     override suspend fun updateDownloadPriority(trackId: String, priority: DownloadPriority): Result<Unit> {
         return try {
-            downloadDao.updateDownloadPriority(trackId, priority)
+            withContext(Dispatchers.IO) {
+                downloadDao.updateDownloadPriority(trackId, priority)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -176,7 +196,9 @@ class DownloadRepositoryImpl @Inject constructor(
     
     override suspend fun updateDownloadId(trackId: String, downloadId: Long): Result<Unit> {
         return try {
-            downloadDao.updateDownloadId(trackId, downloadId)
+            withContext(Dispatchers.IO) {
+                downloadDao.updateDownloadId(trackId, downloadId)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -185,7 +207,9 @@ class DownloadRepositoryImpl @Inject constructor(
     
     override suspend fun updateDownloadStatus(trackId: String, status: DownloadStatus, progress: Int): Result<Unit> {
         return try {
-            downloadDao.updateDownloadStatus(trackId, status, progress)
+            withContext(Dispatchers.IO) {
+                downloadDao.updateDownloadStatus(trackId, status, progress)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -200,7 +224,9 @@ class DownloadRepositoryImpl @Inject constructor(
     override suspend fun clearFailedDownloads(): Result<Unit> {
         return try {
             val cutoffDate = LocalDateTime.now().minusHours(24)
-            downloadDao.deleteOldFailedDownloads(cutoffDate)
+            withContext(Dispatchers.IO) {
+                downloadDao.deleteOldFailedDownloads(cutoffDate)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -208,11 +234,15 @@ class DownloadRepositoryImpl @Inject constructor(
     }
     
     override suspend fun getTotalDownloadedSize(): Long {
-        return downloadDao.getTotalDownloadedSize().first() ?: 0L
+        return withContext(Dispatchers.IO) {
+            downloadDao.getTotalDownloadedSize().first() ?: 0L
+        }
     }
     
     override suspend fun getCompletedDownloadsCount(): Int {
-        return downloadDao.getCompletedDownloadsCount().first()
+        return withContext(Dispatchers.IO) {
+            downloadDao.getCompletedDownloadsCount().first()
+        }
     }
     
     override suspend fun cleanupOldDownloads(): Result<Unit> {

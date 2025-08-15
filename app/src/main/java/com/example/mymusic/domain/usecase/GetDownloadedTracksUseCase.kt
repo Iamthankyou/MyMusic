@@ -10,6 +10,6 @@ class GetDownloadedTracksUseCase @Inject constructor(
 ) {
     
     operator fun invoke(): Flow<List<DownloadEntity>> {
-        return downloadRepository.getCompletedDownloads()
+        return downloadRepository.getAllDownloads()
     }
 }
