@@ -6,6 +6,9 @@ import com.example.mymusic.data.repository.SearchRepository
 import com.example.mymusic.domain.usecase.DetailUseCase
 import com.example.mymusic.domain.usecase.SearchHistoryUseCase
 import com.example.mymusic.domain.usecase.SearchUseCase
+import com.example.mymusic.domain.usecase.DownloadTrackUseCase
+import com.example.mymusic.domain.usecase.GetDownloadedTracksUseCase
+import com.example.mymusic.domain.usecase.DeleteDownloadUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,4 +36,24 @@ object UseCaseModule {
     fun provideDetailUseCase(detailRepository: DetailRepository): DetailUseCase {
         return DetailUseCase(detailRepository)
     }
+    
+    @Provides
+    @Singleton
+    fun provideDownloadTrackUseCase(downloadRepository: com.example.mymusic.domain.repository.DownloadRepository): DownloadTrackUseCase {
+        return DownloadTrackUseCase(downloadRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGetDownloadedTracksUseCase(downloadRepository: com.example.mymusic.domain.repository.DownloadRepository): GetDownloadedTracksUseCase {
+        return GetDownloadedTracksUseCase(downloadRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideDeleteDownloadUseCase(downloadRepository: com.example.mymusic.domain.repository.DownloadRepository): DeleteDownloadUseCase {
+        return DeleteDownloadUseCase(downloadRepository)
+    }
+    
+
 }

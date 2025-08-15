@@ -7,14 +7,15 @@ import androidx.room.TypeConverters
 import android.content.Context
 
 @Database(
-    entities = [SearchHistoryEntity::class],
-    version = 1,
+    entities = [SearchHistoryEntity::class, DownloadEntity::class],
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     
     abstract fun searchHistoryDao(): SearchHistoryDao
+    abstract fun downloadDao(): DownloadDao
     
     companion object {
         @Volatile
