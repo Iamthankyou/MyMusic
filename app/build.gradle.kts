@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
-    id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.compose)
 }
 
 android {
@@ -81,7 +82,7 @@ dependencies {
     
     // DI - using kapt for Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
     
     // Networking & Serialization
     implementation(libs.retrofit)
@@ -99,22 +100,19 @@ dependencies {
     implementation(libs.media3.ui)
     implementation(libs.androidx.media)
     
-    // Room dependencies - using kapt
+    // Room dependencies - using ksp
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
-kapt {
-    correctErrorTypes = true
-    // Disable Room verification to avoid SQLite issues
-    arguments {
-        arg("room.disableVerification", "true")
-        arg("room.verifyQueries", "false")
-        arg("room.expandProjection", "false")
-    }
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.disableVerification", "true")
+    arg("room.verifyQueries", "false")
+    arg("room.expandProjection", "false")
 }

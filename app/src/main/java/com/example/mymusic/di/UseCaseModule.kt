@@ -15,19 +15,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object UseCaseModule {
-    
     @Provides
     @Singleton
     fun provideSearchUseCase(searchRepository: SearchRepository): SearchUseCase {
         return SearchUseCase(searchRepository)
     }
-    
+
     @Provides
     @Singleton
     fun provideSearchHistoryUseCase(searchHistoryDao: SearchHistoryDao): SearchHistoryUseCase {
         return SearchHistoryUseCase(searchHistoryDao)
     }
-    
+
     @Provides
     @Singleton
     fun provideDetailUseCase(detailRepository: DetailRepository): DetailUseCase {

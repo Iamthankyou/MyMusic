@@ -6,9 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.mymusic.presentation.discovery.DiscoveryScreen
 import com.example.mymusic.presentation.home.trending.TrendingScreen
-import com.example.mymusic.presentation.search.SearchScreen
 import com.example.mymusic.presentation.player.PlayerRoute
 import com.example.mymusic.presentation.detail.TrackDetailScreen
+import com.example.mymusic.presentation.search.SearchScreen
 
 @Composable
 fun NavGraph(

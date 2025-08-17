@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.mymusic.presentation.components.TrackItem
 import com.example.mymusic.presentation.detail.components.RelatedContent
 import com.example.mymusic.presentation.detail.components.ShareButton
 

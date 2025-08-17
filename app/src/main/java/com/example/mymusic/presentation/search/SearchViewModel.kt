@@ -10,7 +10,15 @@ import com.example.mymusic.domain.usecase.SearchUseCase
 import com.example.mymusic.playback.PlaybackController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,7 +54,7 @@ class SearchViewModel @Inject constructor(
     init {
         // Load search history
         loadSearchHistory()
-        
+
         // Debounced search with 300ms delay
         searchQuery
             .debounce(300)
@@ -59,10 +67,10 @@ class SearchViewModel @Inject constructor(
                 } else {
                     searchUseCase(query)
                 }
-                .catch { e ->
-                    _error.value = e.message
-                    emit(emptyList())
-                }
+                    .catch { e ->
+                        _error.value = e.message
+                        emit(emptyList())
+                    }
             }
             .onEach { results ->
                 _searchResults.value = results
@@ -82,7 +90,7 @@ class SearchViewModel @Inject constructor(
 
     fun onTrackClicked(track: Track) {
         val url = track.audioUrl ?: return
-        
+
         playbackController.play(
             trackId = track.id,
             title = track.title,
@@ -95,7 +103,7 @@ class SearchViewModel @Inject constructor(
     fun clearError() {
         _error.value = null
     }
-    
+
     // Filter management
     fun updateFilters(filters: SearchFilter) {
         _currentFilters.value = filters.copy(query = _searchQuery.value)
@@ -104,7 +112,7 @@ class SearchViewModel @Inject constructor(
             performSearch()
         }
     }
-    
+
     fun resetFilters() {
         _currentFilters.value = SearchFilter.empty()
         // Trigger search without filters
@@ -112,11 +120,11 @@ class SearchViewModel @Inject constructor(
             performSearch()
         }
     }
-    
+
     fun toggleFilters() {
         _showFilters.value = !_showFilters.value
     }
-    
+
     fun removeFilter(filterType: String) {
         val current = _currentFilters.value
         val newFilters = when (filterType) {
@@ -135,7 +143,7 @@ class SearchViewModel @Inject constructor(
             performSearch()
         }
     }
-    
+
     // Search history management
     fun loadSearchHistory() {
         viewModelScope.launch {
@@ -145,35 +153,35 @@ class SearchViewModel @Inject constructor(
                 }
         }
     }
-    
+
     fun onSearchHistorySelected(searchItem: SearchHistoryEntity) {
         _searchQuery.value = searchItem.query
         // TODO: Parse and restore filters from searchItem.filters
     }
-    
+
     fun deleteSearchHistory(searchItem: SearchHistoryEntity) {
         viewModelScope.launch {
             searchHistoryUseCase.deleteSearch(searchItem)
         }
     }
-    
+
     fun clearAllHistory() {
         viewModelScope.launch {
             searchHistoryUseCase.clearAllHistory()
         }
     }
-    
+
     private fun saveSearchToHistory(resultCount: Int) {
         val query = _searchQuery.value
         val filters = _currentFilters.value
-        
+
         if (query.isNotBlank()) {
             viewModelScope.launch {
                 searchHistoryUseCase.saveSearch(query, filters, resultCount)
             }
         }
     }
-    
+
     private fun performSearch() {
         // This will trigger the search flow in init block
         // Just update the query to trigger the search
