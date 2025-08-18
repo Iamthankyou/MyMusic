@@ -10,6 +10,8 @@ import com.example.mymusic.presentation.search.SearchScreen
 import com.example.mymusic.presentation.player.PlayerRoute
 import com.example.mymusic.presentation.detail.TrackDetailScreen
 import com.example.mymusic.presentation.download.DownloadsScreen
+import com.example.mymusic.presentation.playlist.PlaylistListScreen
+import com.example.mymusic.presentation.playlist.PlaylistDetailScreen
 
 @Composable
 fun NavGraph(
@@ -33,6 +35,10 @@ fun NavGraph(
             DiscoveryScreen(navController = navController)
         }
         
+        composable("playlists") {
+            PlaylistListScreen(navController = navController)
+        }
+        
         composable("downloads") {
             DownloadsScreen(
                 onNavigateToPlayer = { trackId ->
@@ -50,6 +56,15 @@ fun NavGraph(
             val trackId = backStackEntry.arguments?.getString("trackId") ?: ""
             TrackDetailScreen(
                 trackId = trackId,
+                navController = navController
+            )
+        }
+        
+        // Playlist detail route
+        composable("playlist_detail/{playlistId}") { backStackEntry ->
+            val playlistId = backStackEntry.arguments?.getString("playlistId") ?: ""
+            PlaylistDetailScreen(
+                playlistId = playlistId,
                 navController = navController
             )
         }

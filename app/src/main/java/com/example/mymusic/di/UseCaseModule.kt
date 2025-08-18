@@ -1,7 +1,7 @@
 package com.example.mymusic.di
 
 import com.example.mymusic.data.local.SearchHistoryDao
-import com.example.mymusic.data.repository.DetailRepository
+import com.example.mymusic.data.repository.saoDetailRepository
 import com.example.mymusic.data.repository.SearchRepository
 import com.example.mymusic.domain.usecase.DetailUseCase
 import com.example.mymusic.domain.usecase.SearchHistoryUseCase
@@ -10,6 +10,10 @@ import com.example.mymusic.domain.usecase.DownloadTrackUseCase
 import com.example.mymusic.domain.usecase.GetDownloadedTracksUseCase
 import com.example.mymusic.domain.usecase.DeleteDownloadUseCase
 import com.example.mymusic.domain.usecase.CancelDownloadUseCase
+import com.example.mymusic.domain.usecase.GetTrendingPlaylistsUseCase
+import com.example.mymusic.domain.usecase.GetPlaylistDetailUseCase
+import com.example.mymusic.domain.usecase.CreateVirtualPlaylistsUseCase
+import com.example.mymusic.domain.usecase.GetTrendingTracksUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,5 +64,23 @@ object UseCaseModule {
     @Singleton
     fun provideCancelDownloadUseCase(downloadRepository: com.example.mymusic.domain.repository.DownloadRepository): CancelDownloadUseCase {
         return CancelDownloadUseCase(downloadRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGetTrendingPlaylistsUseCase(playlistRepository: com.example.mymusic.domain.repository.PlaylistRepository): GetTrendingPlaylistsUseCase {
+        return GetTrendingPlaylistsUseCase(playlistRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGetPlaylistDetailUseCase(playlistRepository: com.example.mymusic.domain.repository.PlaylistRepository): GetPlaylistDetailUseCase {
+        return GetPlaylistDetailUseCase(playlistRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideCreateVirtualPlaylistsUseCase(getTrendingTracksUseCase: GetTrendingTracksUseCase): CreateVirtualPlaylistsUseCase {
+        return CreateVirtualPlaylistsUseCase(getTrendingTracksUseCase)
     }
 }

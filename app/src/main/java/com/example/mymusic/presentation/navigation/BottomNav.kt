@@ -14,12 +14,13 @@ sealed class NavItem(val route: String, val label: String) {
     data object Trending : NavItem("trending", "Trending")
     data object Search : NavItem("search", "Search")
     data object Explore : NavItem("explore", "Explore")
+    data object Playlists : NavItem("playlists", "Playlists")
     data object Downloads : NavItem("downloads", "Downloads")
 }
 
 @Composable
 fun BottomNavBar(navController: NavHostController) {
-    val items = listOf(NavItem.Trending, NavItem.Search, NavItem.Explore, NavItem.Downloads)
+    val items = listOf(NavItem.Trending, NavItem.Search, NavItem.Explore, NavItem.Playlists, NavItem.Downloads)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -58,6 +59,7 @@ private fun getIconForRoute(route: String): String {
         "trending" -> "🔥" // Trending/hot icon
         "search" -> "🔍" // Search icon
         "explore" -> "🌟" // Explore icon
+        "playlists" -> "📋" // Playlist icon
         "downloads" -> "⬇" // Download icon
         else -> "•"
     }
