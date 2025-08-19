@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
 import com.example.mymusic.data.paging.TrendingTracksPagingSource
-import com.example.mymusic.data.remote.JamendoTracksService
+import com.example.mymusic.data.repository.AggregatedMusicRepository
 import com.example.mymusic.domain.model.Track
 import com.example.mymusic.playback.PlaybackController
 import com.example.mymusic.domain.usecase.DownloadTrackUseCase
@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TrendingViewModel @Inject constructor(
-    private val service: JamendoTracksService,
+    private val repository: AggregatedMusicRepository,
     private val controller: PlaybackController,
     private val downloadTrackUseCase: DownloadTrackUseCase,
     private val downloadRepository: DownloadRepository
@@ -36,7 +36,7 @@ class TrendingViewModel @Inject constructor(
 
     val pagingData: Flow<PagingData<Track>> = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 2),
-        pagingSourceFactory = { TrendingTracksPagingSource(service, 20) }
+        pagingSourceFactory = { TrendingTracksPagingSource(repository, 20) }
     ).flow.cachedIn(viewModelScope)
 
     fun onTrackClicked(track: Track) {

@@ -12,6 +12,8 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import javax.inject.Named
+import com.example.mymusic.data.remote.DeezerService
 import javax.inject.Singleton
 
 @Module
@@ -51,6 +53,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @Named("JamendoRetrofit")
     fun provideRetrofit(client: OkHttpClient, json: Json): Retrofit {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
@@ -59,6 +62,23 @@ object NetworkModule {
             .addConverterFactory(json.asConverterFactory(contentType))
             .build()
     }
+
+    @Provides
+    @Singleton
+    @Named("DeezerRetrofit")
+    fun provideDeezerRetrofit(json: Json): Retrofit {
+        val contentType = "application/json".toMediaType()
+        // Deezer public API does not need API key and uses a different base URL
+        return Retrofit.Builder()
+            .baseUrl("https://api.deezer.com/")
+            .addConverterFactory(json.asConverterFactory(contentType))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeezerService(@Named("DeezerRetrofit") retrofit: Retrofit): DeezerService =
+        retrofit.create(DeezerService::class.java)
 }
 
 

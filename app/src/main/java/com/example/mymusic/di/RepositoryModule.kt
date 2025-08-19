@@ -9,6 +9,7 @@ import com.example.mymusic.data.mapper.ArtistMapper
 import com.example.mymusic.data.mapper.TrackMapper
 import com.example.mymusic.data.mapper.PlaylistMapper
 import com.example.mymusic.data.remote.JamendoTracksService
+import com.example.mymusic.data.remote.DeezerService
 import com.example.mymusic.data.remote.JamendoPlaylistsService
 import com.example.mymusic.data.repository.DetailRepository
 import com.example.mymusic.data.repository.DiscoveryRepository
@@ -46,12 +47,12 @@ abstract class RepositoryModule {
     companion object {
         @Provides
         @Singleton
-        fun provideTracksService(retrofit: Retrofit): JamendoTracksService =
+        fun provideTracksService(@javax.inject.Named("JamendoRetrofit") retrofit: Retrofit): JamendoTracksService =
             retrofit.create(JamendoTracksService::class.java)
             
         @Provides
         @Singleton
-        fun providePlaylistsService(retrofit: Retrofit): JamendoPlaylistsService =
+        fun providePlaylistsService(@javax.inject.Named("JamendoRetrofit") retrofit: Retrofit): JamendoPlaylistsService =
             retrofit.create(JamendoPlaylistsService::class.java)
             
         @Provides
@@ -87,10 +88,23 @@ abstract class RepositoryModule {
             
         @Provides
         @Singleton
-        fun provideSearchRepository(
-            service: JamendoTracksService,
+        fun provideAggregatedMusicRepository(
+            tracksService: JamendoTracksService,
+            deezerService: com.example.mymusic.data.remote.DeezerService,
             trackMapper: TrackMapper
-        ): SearchRepository = SearchRepository(service, trackMapper)
+        ): com.example.mymusic.data.repository.AggregatedMusicRepository =
+            com.example.mymusic.data.repository.AggregatedMusicRepository(
+                jamendoService = tracksService,
+                deezerService = deezerService,
+                trackMapper = trackMapper
+            )
+
+        @Provides
+        @Singleton
+        fun provideSearchRepository(
+            aggregatedMusicRepository: com.example.mymusic.data.repository.AggregatedMusicRepository,
+            trackMapper: TrackMapper
+        ): SearchRepository = SearchRepository(aggregatedMusicRepository, trackMapper)
         
         @Provides
         @Singleton

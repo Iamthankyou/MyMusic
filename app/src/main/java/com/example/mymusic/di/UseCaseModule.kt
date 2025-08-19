@@ -1,7 +1,7 @@
 package com.example.mymusic.di
 
 import com.example.mymusic.data.local.SearchHistoryDao
-import com.example.mymusic.data.repository.saoDetailRepository
+import com.example.mymusic.data.repository.DetailRepository
 import com.example.mymusic.data.repository.SearchRepository
 import com.example.mymusic.domain.usecase.DetailUseCase
 import com.example.mymusic.domain.usecase.SearchHistoryUseCase

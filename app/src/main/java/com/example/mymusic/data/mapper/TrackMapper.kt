@@ -13,6 +13,16 @@ object TrackMapper {
         audioUrl = dto.audio,
         isDownloadable = dto.audiodownload.isNotEmpty()
     )
+
+    fun fromDeezerDto(dto: com.example.mymusic.data.remote.DeezerTrackDto): Track = Track(
+        id = dto.id.toString(),
+        title = dto.title,
+        artist = dto.artist?.name ?: "",
+        durationMs = dto.duration.toLong().times(1000),
+        artworkUrl = dto.album?.coverXl ?: dto.album?.coverBig ?: dto.album?.cover,
+        audioUrl = dto.preview,
+        isDownloadable = false
+    )
 }
 
 
