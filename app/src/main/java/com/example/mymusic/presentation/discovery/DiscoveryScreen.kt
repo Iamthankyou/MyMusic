@@ -95,26 +95,7 @@ fun DiscoveryScreen(
                         .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    // Debug info
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = "Debug Info",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text("Trending: ${trendingTracks.size} tracks")
-                                Text("New Releases: ${newReleases.size} tracks")
-                                Text("Featured: ${featuredTracks.size} tracks")
-                                Text("Selected Genre: $selectedGenre")
-                                Text("Genre Tracks: ${genreTracks.size} tracks")
-                            }
-                        }
-                    }
+                    // Remove verbose debug card from UI; keep logs only
 
                     // Featured Content Section
                     item {

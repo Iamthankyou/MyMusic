@@ -19,23 +19,13 @@ fun TrendingSection(
     LazyRow(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 4.dp)
+        contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         items(tracks) { track ->
-            Card(
-                modifier = Modifier.width(160.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(12.dp)
-                ) {
-                    TrackItem(
-                        track = track,
-                        onClick = { onTrackClicked(track) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
+            TrackSquareTile(
+                track = track,
+                onClick = { onTrackClicked(track) }
+            )
         }
     }
 }

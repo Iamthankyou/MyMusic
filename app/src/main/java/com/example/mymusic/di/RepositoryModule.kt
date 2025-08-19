@@ -110,8 +110,9 @@ abstract class RepositoryModule {
         @Singleton
         fun provideDiscoveryRepository(
             service: JamendoTracksService,
-            trackMapper: TrackMapper
-        ): DiscoveryRepository = DiscoveryRepository(service, trackMapper)
+            trackMapper: TrackMapper,
+            aggregatedMusicRepository: com.example.mymusic.data.repository.AggregatedMusicRepository
+        ): DiscoveryRepository = DiscoveryRepository(service, trackMapper, aggregatedMusicRepository)
         
         @Provides
         @Singleton

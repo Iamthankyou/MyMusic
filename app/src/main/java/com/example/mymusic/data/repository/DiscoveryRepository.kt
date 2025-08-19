@@ -3,6 +3,7 @@ package com.example.mymusic.data.repository
 import android.util.Log
 import com.example.mymusic.data.mapper.TrackMapper
 import com.example.mymusic.data.remote.JamendoTracksService
+import com.example.mymusic.data.repository.AggregatedMusicRepository
 import com.example.mymusic.domain.model.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -12,35 +13,13 @@ import javax.inject.Singleton
 @Singleton
 class DiscoveryRepository @Inject constructor(
     private val service: JamendoTracksService,
-    private val trackMapper: TrackMapper
+    private val trackMapper: TrackMapper,
+    private val aggregatedRepository: AggregatedMusicRepository
 ) {
     
     fun getTrendingTracks(limit: Int = 20, offset: Int = 0): Flow<List<Track>> = flow {
-        Log.d("DiscoveryRepository", "Fetching trending tracks: limit=$limit, offset=$offset")
-        val response = service.getDiscoveryTrendingTracks(limit = limit, offset = offset)
-        Log.d("DiscoveryRepository", "Trending response received: headers=${response.headers}, results count=${response.results.size}")
-        
-        if (response.results.isEmpty()) {
-            Log.w("DiscoveryRepository", "No trending tracks found in response")
-        }
-        
-        val tracks = response.results.map { trackDto ->
-            try {
-                trackMapper.fromDto(trackDto)
-            } catch (e: Exception) {
-                Log.e("DiscoveryRepository", "Error mapping track: ${trackDto.id}", e)
-                Track(
-                    id = trackDto.id,
-                    title = trackDto.name,
-                    artist = trackDto.artist_name,
-                    durationMs = 0L,
-                    artworkUrl = trackDto.image.ifEmpty { trackDto.album_image },
-                    audioUrl = trackDto.audio,
-                    isDownloadable = trackDto.audiodownload.isNotEmpty()
-                )
-            }
-        }
-        Log.d("DiscoveryRepository", "Mapped ${tracks.size} trending tracks")
+        Log.d("DiscoveryRepository", "Fetching trending tracks (aggregated): limit=$limit, offset=$offset")
+        val tracks = aggregatedRepository.getTrendingTracks(limit = limit, offset = offset)
         emit(tracks)
     }
     
