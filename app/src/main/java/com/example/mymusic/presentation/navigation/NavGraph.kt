@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 import com.example.mymusic.presentation.discovery.DiscoveryScreen
 import com.example.mymusic.presentation.home.trending.TrendingScreen
 import com.example.mymusic.presentation.search.SearchScreen
@@ -28,6 +30,14 @@ fun NavGraph(
         }
         
         composable("search") {
+            SearchScreen(navController = navController)
+        }
+        composable(
+            route = "search?query={query}",
+            arguments = listOf(
+                navArgument("query") { type = NavType.StringType; nullable = true; defaultValue = null }
+            )
+        ) {
             SearchScreen(navController = navController)
         }
         

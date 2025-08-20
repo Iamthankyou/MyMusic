@@ -16,11 +16,19 @@ import androidx.compose.material.icons.filled.DownloadDone
 import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SearchBar
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,13 +47,17 @@ import com.example.mymusic.presentation.components.*
 import com.example.mymusic.ui.theme.JetcasterSpacing
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import android.net.Uri
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrendingScreen(
     viewModel: TrendingViewModel = hiltViewModel(),
     navController: androidx.navigation.NavController? = null
 ) {
     val items: LazyPagingItems<Track> = viewModel.pagingData.collectAsLazyPagingItems()
+    var homeQuery by androidx.compose.runtime.remember { mutableStateOf("") }
+    val presetTags = listOf("Pop", "Rock", "Hip-Hop", "Chill", "Workout", "Lo-fi")
     
     // Update loaded tracks when paging data changes
     LaunchedEffect(items.itemSnapshotList) {
@@ -54,6 +66,55 @@ fun TrendingScreen(
     }
     
     Column(modifier = Modifier.fillMaxSize()) {
+        // Search bar on Home
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = JetcasterSpacing.md, vertical = JetcasterSpacing.sm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SearchBar(
+                query = homeQuery,
+                onQueryChange = { homeQuery = it },
+                onSearch = {
+                    val q = homeQuery.trim()
+                    if (q.isNotEmpty()) {
+                        val encoded = Uri.encode(q)
+                        navController?.navigate("search?query=$encoded")
+                    } else {
+                        navController?.navigate("search")
+                    }
+                },
+                active = false,
+                onActiveChange = { active ->
+                    if (active) navController?.navigate("search")
+                },
+                placeholder = { Text("Search for tracks, artists...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                modifier = Modifier.weight(1f)
+            ) {}
+        }
+
+        // Preset tags
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = JetcasterSpacing.md),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(presetTags) { tag ->
+                AssistChip(
+                    onClick = {
+                        val encoded = Uri.encode(tag)
+                        navController?.navigate("search?query=$encoded")
+                    },
+                    label = { Text(tag) }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(JetcasterSpacing.md))
+
         Text(
             text = "Trending Tracks",
             style = MaterialTheme.typography.headlineMedium,
