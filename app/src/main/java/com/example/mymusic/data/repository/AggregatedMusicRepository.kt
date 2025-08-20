@@ -62,6 +62,102 @@ class AggregatedMusicRepository @Inject constructor(
 		val deezer = deezerDeferred.await()
 		(jamendo + deezer)
 	}
+
+	// New methods for slides feed using correct Jamendo API endpoints
+	suspend fun getTopTracks(limit: Int = 10): List<Track> = coroutineScope {
+		val jamendoDeferred = async {
+			try {
+				val res = jamendoService.getTopTracks(limit = limit)
+				res.results.map { trackMapper.fromDto(it) }
+			} catch (t: Throwable) {
+				emptyList()
+			}
+		}
+		val deezerDeferred = async {
+			try {
+				val res = deezerService.getTrendingTracks(limit = limit, index = 0)
+				res.data.map { TrackMapper.fromDeezerDto(it) }
+			} catch (t: Throwable) {
+				emptyList()
+			}
+		}
+		val jamendo = jamendoDeferred.await()
+		val deezer = deezerDeferred.await()
+		(jamendo + deezer).take(limit)
+	}
+
+	suspend fun getLatestTracks(limit: Int = 10): List<Track> = coroutineScope {
+		val jamendoDeferred = async {
+			try {
+				val res = jamendoService.getLatestTracks(limit = limit)
+				res.results.map { trackMapper.fromDto(it) }
+			} catch (t: Throwable) {
+				emptyList()
+			}
+		}
+		val deezerDeferred = async {
+			try {
+				// Try to get latest tracks from Deezer
+				val res = deezerService.getLatestTracks(limit = limit, index = 0)
+				res.data.map { TrackMapper.fromDeezerDto(it) }
+			} catch (t: Throwable) {
+				// Fallback to trending tracks if latest fails
+				try {
+					val res = deezerService.getTrendingTracks(limit = limit, index = 0)
+					res.data.map { TrackMapper.fromDeezerDto(it) }
+				} catch (t2: Throwable) {
+					emptyList()
+				}
+			}
+		}
+		val jamendo = jamendoDeferred.await()
+		val deezer = deezerDeferred.await()
+		(jamendo + deezer).take(limit)
+	}
+
+	suspend fun getTracksByMood(mood: String, limit: Int = 10): List<Track> = coroutineScope {
+		val jamendoDeferred = async {
+			try {
+				val res = jamendoService.getTracksByMood(mood = mood, limit = limit)
+				res.results.map { trackMapper.fromDto(it) }
+			} catch (t: Throwable) {
+				emptyList()
+			}
+		}
+		val deezerDeferred = async {
+			try {
+				val res = deezerService.searchTracks(query = mood, limit = limit)
+				res.data.map { TrackMapper.fromDeezerDto(it) }
+			} catch (t: Throwable) {
+				emptyList()
+			}
+		}
+		val jamendo = jamendoDeferred.await()
+		val deezer = deezerDeferred.await()
+		(jamendo + deezer).take(limit)
+	}
+
+	suspend fun getTracksByGenre(genre: String, limit: Int = 10): List<Track> = coroutineScope {
+		val jamendoDeferred = async {
+			try {
+				val res = jamendoService.getTracksByGenre(genre = genre, limit = limit)
+				res.results.map { trackMapper.fromDto(it) }
+			} catch (t: Throwable) {
+				emptyList()
+			}
+		}
+		val deezerDeferred = async {
+			try {
+				val res = deezerService.searchTracks(query = genre, limit = limit)
+				res.data.map { TrackMapper.fromDeezerDto(it) }
+			} catch (t: Throwable) {
+				emptyList()
+			}
+		}
+		val jamendo = jamendoDeferred.await()
+		val deezer = deezerDeferred.await()
+		(jamendo + deezer).take(limit)
+	}
 }
 
 

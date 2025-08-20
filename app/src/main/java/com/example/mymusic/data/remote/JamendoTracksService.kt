@@ -26,14 +26,14 @@ interface JamendoTracksService {
     suspend fun getDiscoveryTrendingTracks(
         @Query("limit") limit: Int = 20,
         @Query("offset") offset: Int = 0,
-        @Query("orderby") orderBy: String = "popularity_total"
+        @Query("order") orderBy: String = "popularity_total"
     ): SearchResponseDto
     
     @GET("tracks/")
     suspend fun getNewReleases(
         @Query("limit") limit: Int = 20,
         @Query("offset") offset: Int = 0,
-        @Query("orderby") orderBy: String = "releasedate"
+        @Query("order") orderBy: String = "releasedate"
     ): SearchResponseDto
     
     @GET("tracks/")
@@ -41,16 +41,53 @@ interface JamendoTracksService {
         @Query("tags") genre: String,
         @Query("limit") limit: Int = 20,
         @Query("offset") offset: Int = 0,
-        @Query("orderby") orderBy: String = "popularity_total"
+        @Query("order") orderBy: String = "popularity_total"
     ): SearchResponseDto
     
     @GET("tracks/")
     suspend fun getFeaturedTracks(
         @Query("limit") limit: Int = 10,
         @Query("offset") offset: Int = 0,
-        @Query("orderby") orderBy: String = "popularity_total",
+        @Query("order") orderBy: String = "popularity_total",
         @Query("include") include: String = "musicinfo"
     ): SearchResponseDto
+    
+    // New endpoints for slides feed
+    @GET("tracks/")
+    suspend fun getTopTracks(
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int = 0,
+        @Query("order") orderBy: String = "popularity_total"
+    ): SearchResponseDto
+    
+    @GET("tracks/")
+    suspend fun getLatestTracks(
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int = 0,
+        @Query("order") orderBy: String = "releasedate_desc"
+    ): SearchResponseDto
+    
+    @GET("tracks/")
+    suspend fun getTracksByMood(
+        @Query("tags") mood: String,
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int = 0,
+        @Query("order") orderBy: String = "popularity_total"
+    ): SearchResponseDto
+    
+    @GET("albums/")
+    suspend fun getFeaturedAlbums(
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int = 0,
+        @Query("order") orderBy: String = "popularity_total"
+    ): AlbumResponseDto
+    
+    @GET("artists/")
+    suspend fun getTopArtists(
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int = 0,
+        @Query("order") orderBy: String = "popularity_total"
+    ): ArtistResponseDto
     
     // Detail endpoints for Story 3.4
     @GET("tracks/")

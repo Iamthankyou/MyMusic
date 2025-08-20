@@ -19,6 +19,22 @@ interface DeezerService {
 		@Query("limit") limit: Int = 20,
 		@Query("index") index: Int = 0
 	): DeezerSearchResponseDto
+	
+	// Latest releases - using search with recent date filter
+	@GET("search")
+	suspend fun getLatestTracks(
+		@Query("q") query: String = "recent",
+		@Query("limit") limit: Int = 20,
+		@Query("index") index: Int = 0
+	): DeezerSearchResponseDto
+	
+	// Alternative: Get latest from specific genre
+	@GET("search")
+	suspend fun getLatestTracksByGenre(
+		@Query("q") genre: String,
+		@Query("limit") limit: Int = 20,
+		@Query("index") index: Int = 0
+	): DeezerSearchResponseDto
 }
 
 @Serializable

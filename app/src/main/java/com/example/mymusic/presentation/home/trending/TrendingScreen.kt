@@ -64,6 +64,16 @@ fun TrendingScreen(
     val isSearchingByGenre by viewModel.isSearchingByGenre.collectAsState()
     val genreSearchResults by viewModel.genreSearchResults.collectAsState()
     
+    // Collect slides feed states
+    val topTracks by viewModel.topTracks.collectAsState()
+    val latestTracks by viewModel.latestTracks.collectAsState()
+    val chillTracks by viewModel.chillTracks.collectAsState()
+    val rockTracks by viewModel.rockTracks.collectAsState()
+    val electronicTracks by viewModel.electronicTracks.collectAsState()
+    val jazzTracks by viewModel.jazzTracks.collectAsState()
+    val acousticTracks by viewModel.acousticTracks.collectAsState()
+    val isLoadingSlides by viewModel.isLoadingSlides.collectAsState()
+    
     // Update loaded tracks when paging data changes
     LaunchedEffect(items.itemSnapshotList) {
         val tracks = items.itemSnapshotList.items
@@ -75,72 +85,178 @@ fun TrendingScreen(
         // This will trigger a recomposition and scroll to top
     }
     
-    Column(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 80.dp) // Add bottom padding for mini player
+    ) {
         // Search bar on Home
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = JetcasterSpacing.md, vertical = JetcasterSpacing.sm),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SearchBar(
-                query = homeQuery,
-                onQueryChange = { homeQuery = it },
-                onSearch = {
-                    val q = homeQuery.trim()
-                    if (q.isNotEmpty()) {
-                        val encoded = Uri.encode(q)
-                        navController?.navigate("search?query=$encoded")
-                    } else {
-                        navController?.navigate("search")
-                    }
-                },
-                active = false,
-                onActiveChange = { active ->
-                    if (active) navController?.navigate("search")
-                },
-                placeholder = { Text("Search for tracks, artists...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                modifier = Modifier.weight(1f)
-            ) {}
-        }
-
-        // Preset tags
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = JetcasterSpacing.md),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(presetTags) { tag ->
-                AssistChip(
-                    onClick = {
-                        if (currentGenre == tag) {
-                            // If same genre is clicked again, clear the search
-                            viewModel.clearGenreSearch()
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = JetcasterSpacing.md, vertical = JetcasterSpacing.sm),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SearchBar(
+                    query = homeQuery,
+                    onQueryChange = { homeQuery = it },
+                    onSearch = {
+                        val q = homeQuery.trim()
+                        if (q.isNotEmpty()) {
+                            val encoded = Uri.encode(q)
+                            navController?.navigate("search?query=$encoded")
                         } else {
-                            // Search by genre
-                            viewModel.searchByGenre(tag)
+                            navController?.navigate("search")
                         }
                     },
-                    label = { Text(tag) },
-                    colors = androidx.compose.material3.AssistChipDefaults.assistChipColors(
-                        containerColor = if (currentGenre == tag) {
-                            MaterialTheme.colorScheme.primaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        },
-                        labelColor = if (currentGenre == tag) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        }
-                    )
-                )
+                    active = false,
+                    onActiveChange = { active ->
+                        if (active) navController?.navigate("search")
+                    },
+                    placeholder = { Text("Search for tracks, artists...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                    modifier = Modifier.weight(1f)
+                ) {}
             }
         }
 
-        Spacer(modifier = Modifier.height(JetcasterSpacing.md))
+        // Slides Feed Section - sắp xếp hợp lý theo thứ tự ưu tiên
+        if (!isLoadingSlides) {
+                            // Top Tracks Slides - lớn nhất, ở đầu
+                if (topTracks.isNotEmpty()) {
+                    item {
+                        SlidesFeed(
+                            title = "Top Tracks",
+                            tracks = topTracks,
+                            onTrackClick = { track ->
+                                viewModel.onTrackClicked(track)
+                            }
+                        )
+                    }
+                }
+            
+            // Latest Releases Slides - thon hơn, không có page indicator
+                            if (latestTracks.isNotEmpty()) {
+                    item {
+                        LatestTracksSlidesFeed(
+                            title = "Latest Releases",
+                            tracks = latestTracks,
+                            onTrackClick = { track ->
+                                viewModel.onTrackClicked(track)
+                            }
+                        )
+                    }
+                }
+            
+            // Mood-based Slides - nhỏ nhất, ở cuối
+                            if (chillTracks.isNotEmpty()) {
+                    item {
+                        CompactSlidesFeed(
+                            title = "Chill Vibes",
+                            tracks = chillTracks,
+                            onTrackClick = { track ->
+                                viewModel.onTrackClicked(track)
+                            }
+                        )
+                    }
+                }
+
+                // Rock Music Feed
+                if (rockTracks.isNotEmpty()) {
+                    item {
+                        CompactSlidesFeed(
+                            title = "Rock Hits",
+                            tracks = rockTracks,
+                            onTrackClick = { track ->
+                                viewModel.onTrackClicked(track)
+                            }
+                        )
+                    }
+                }
+
+                // Electronic Music Feed
+                if (electronicTracks.isNotEmpty()) {
+                    item {
+                        CompactSlidesFeed(
+                            title = "Electronic Beats",
+                            tracks = electronicTracks,
+                            onTrackClick = { track ->
+                                viewModel.onTrackClicked(track)
+                            }
+                        )
+                    }
+                }
+
+                // Jazz Music Feed
+                if (jazzTracks.isNotEmpty()) {
+                    item {
+                        CompactSlidesFeed(
+                            title = "Jazz Classics",
+                            tracks = jazzTracks,
+                            onTrackClick = { track ->
+                                viewModel.onTrackClicked(track)
+                            }
+                        )
+                    }
+                }
+
+                // Acoustic Music Feed
+                if (acousticTracks.isNotEmpty()) {
+                    item {
+                        CompactSlidesFeed(
+                            title = "Acoustic Sessions",
+                            tracks = acousticTracks,
+                            onTrackClick = { track ->
+                                viewModel.onTrackClicked(track)
+                            }
+                        )
+                    }
+                }
+        } else {
+            // Loading state for slides
+            item { AppLoading() }
+        }
+
+        // Preset tags
+        item {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = JetcasterSpacing.md),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(presetTags) { tag ->
+                    AssistChip(
+                        onClick = {
+                            if (currentGenre == tag) {
+                                // If same genre is clicked again, clear the search
+                                viewModel.clearGenreSearch()
+                            } else {
+                                // Search by genre
+                                viewModel.searchByGenre(tag)
+                            }
+                        },
+                        label = { Text(tag) },
+                        colors = androidx.compose.material3.AssistChipDefaults.assistChipColors(
+                            containerColor = if (currentGenre == tag) {
+                                MaterialTheme.colorScheme.primaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
+                            labelColor = if (currentGenre == tag) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    )
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(JetcasterSpacing.md))
+        }
 
         // Dynamic title based on current state
         val title = when {
@@ -148,35 +264,37 @@ fun TrendingScreen(
             else -> "Trending Tracks"
         }
         
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = JetcasterSpacing.md),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.accessibleHeading(level = 1)
-                )
-                
-                // Show result count for genre search
-                if (currentGenre != null && !isSearchingByGenre) {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = JetcasterSpacing.md),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "${genreSearchResults.size} tracks found",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.accessibleHeading(level = 1)
                     )
+                    
+                    // Show result count for genre search
+                    if (currentGenre != null && !isSearchingByGenre) {
+                        Text(
+                            text = "${genreSearchResults.size} tracks found",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
-            }
-            
-            // Show back button when viewing genre results
-            if (currentGenre != null) {
-                androidx.compose.material3.TextButton(
-                    onClick = { viewModel.clearGenreSearch() }
-                ) {
-                    Text("Back to Trending")
+                
+                // Show back button when viewing genre results
+                if (currentGenre != null) {
+                    androidx.compose.material3.TextButton(
+                        onClick = { viewModel.clearGenreSearch() }
+                    ) {
+                        Text("Back to Trending")
+                    }
                 }
             }
         }
@@ -185,92 +303,84 @@ fun TrendingScreen(
         if (currentGenre != null) {
             // Show genre search results
             if (isSearchingByGenre) {
-                AppLoading()
+                item { AppLoading() }
             } else if (genreSearchResults.isEmpty()) {
-                AppEmpty(
-                    message = "No tracks found for $currentGenre",
-                    onRetry = { viewModel.searchByGenre(currentGenre!!) }
-                )
+                item {
+                    AppEmpty(
+                        message = "No tracks found for $currentGenre",
+                        onRetry = { viewModel.searchByGenre(currentGenre!!) }
+                    )
+                }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = JetcasterSpacing.md),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(genreSearchResults) { track ->
-                        // Get download status as Flow for real-time updates
-                        val downloadStatusFlow = remember(track.id) {
-                            viewModel.getDownloadStatusFlow(track.id)
-                        }
-                        val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
-                        
-                        TrackItem(
-                            track = track,
-                            onClick = { 
-                                viewModel.onTrackClicked(track)
-                                // Navigate to track detail if navController is available
-                                Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
-                                navController?.navigate("track_detail/${track.id}")
-                            },
-                            downloadStatus = downloadStatus,
-                            onDownloadClick = {
-                                viewModel.onDownloadClicked(track)
-                            }
-                        )
+                items(genreSearchResults) { track ->
+                    // Get download status as Flow for real-time updates
+                    val downloadStatusFlow = remember(track.id) {
+                        viewModel.getDownloadStatusFlow(track.id)
                     }
+                    val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
+                    
+                    TrackItem(
+                        track = track,
+                        onClick = { 
+                            viewModel.onTrackClicked(track)
+                            // Navigate to track detail if navController is available
+                            Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
+                            navController?.navigate("track_detail/${track.id}")
+                        },
+                        downloadStatus = downloadStatus,
+                        onDownloadClick = {
+                            viewModel.onDownloadClicked(track)
+                        }
+                    )
                 }
             }
         } else {
             // Show trending tracks
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = JetcasterSpacing.md),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                val count = items.itemCount
-                items(count) { index ->
-                    val track = items[index]
-                    if (track != null) {
-                        // Get download status as Flow for real-time updates
-                        val downloadStatusFlow = remember(track.id) {
-                            viewModel.getDownloadStatusFlow(track.id)
-                        }
-                        val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
-                        
-                        TrackItem(
-                            track = track,
-                            onClick = { 
-                                viewModel.onTrackClicked(track)
-                                // Navigate to track detail if navController is available
-                                Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
-                                navController?.navigate("track_detail/${track.id}")
-                            },
-                            downloadStatus = downloadStatus,
-                            onDownloadClick = {
-                                viewModel.onDownloadClicked(track)
-                            }
-                        )
+            val count = items.itemCount
+            items(count) { index ->
+                val track = items[index]
+                if (track != null) {
+                    // Get download status as Flow for real-time updates
+                    val downloadStatusFlow = remember(track.id) {
+                        viewModel.getDownloadStatusFlow(track.id)
                     }
+                    val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
+                    
+                    TrackItem(
+                        track = track,
+                        onClick = { 
+                            viewModel.onTrackClicked(track)
+                            // Navigate to track detail if navController is available
+                            Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
+                            navController?.navigate("track_detail/${track.id}")
+                        },
+                        downloadStatus = downloadStatus,
+                        onDownloadClick = {
+                            viewModel.onDownloadClicked(track)
+                        }
+                    )
                 }
-                items.apply {
-                    when {
-                        loadState.refresh is androidx.paging.LoadState.Loading -> {
-                            item { AppLoading() }
-                        }
-                        loadState.refresh is androidx.paging.LoadState.NotLoading && count == 0 -> {
-                            item { AppEmpty(onRetry = { refresh() }) }
-                        }
-                        loadState.append is androidx.paging.LoadState.Loading -> {
-                            item { AppLoading(fullscreen = false) }
-                        }
-                        loadState.refresh is androidx.paging.LoadState.Error -> {
-                            val e = loadState.refresh as androidx.paging.LoadState.Error
-                            item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
-                        }
-                        loadState.append is androidx.paging.LoadState.Error -> {
-                            val e = loadState.append as androidx.paging.LoadState.Error
-                            item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
-                        }
+            }
+            
+            // Handle paging states
+            items.apply {
+                when {
+                    loadState.refresh is androidx.paging.LoadState.Loading -> {
+                        item { AppLoading() }
+                    }
+                    loadState.refresh is androidx.paging.LoadState.NotLoading && count == 0 -> {
+                        item { AppEmpty(onRetry = { refresh() }) }
+                    }
+                    loadState.append is androidx.paging.LoadState.Loading -> {
+                        item { AppLoading(fullscreen = false) }
+                    }
+                    loadState.refresh is androidx.paging.LoadState.Error -> {
+                        val e = loadState.refresh as androidx.paging.LoadState.Error
+                        item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
+                    }
+                    loadState.append is androidx.paging.LoadState.Error -> {
+                        val e = loadState.append as androidx.paging.LoadState.Error
+                        item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
                     }
                 }
             }

@@ -23,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.async
 
 @HiltViewModel
 class TrendingViewModel @Inject constructor(
@@ -45,10 +46,69 @@ class TrendingViewModel @Inject constructor(
     private val _genreSearchResults = MutableStateFlow<List<Track>>(emptyList())
     val genreSearchResults: StateFlow<List<Track>> = _genreSearchResults
 
+    // Slides feed data
+    private val _topTracks = MutableStateFlow<List<Track>>(emptyList())
+    val topTracks: StateFlow<List<Track>> = _topTracks
+
+    private val _latestTracks = MutableStateFlow<List<Track>>(emptyList())
+    val latestTracks: StateFlow<List<Track>> = _latestTracks
+
+    private val _chillTracks = MutableStateFlow<List<Track>>(emptyList())
+    val chillTracks: StateFlow<List<Track>> = _chillTracks
+
+    // Thêm các feed khác
+    private val _rockTracks = MutableStateFlow<List<Track>>(emptyList())
+    val rockTracks: StateFlow<List<Track>> = _rockTracks
+
+    private val _electronicTracks = MutableStateFlow<List<Track>>(emptyList())
+    val electronicTracks: StateFlow<List<Track>> = _electronicTracks
+
+    // Thêm các genre khác
+    private val _jazzTracks = MutableStateFlow<List<Track>>(emptyList())
+    val jazzTracks: StateFlow<List<Track>> = _jazzTracks
+
+    private val _acousticTracks = MutableStateFlow<List<Track>>(emptyList())
+    val acousticTracks: StateFlow<List<Track>> = _acousticTracks
+
+    private val _isLoadingSlides = MutableStateFlow(false)
+    val isLoadingSlides: StateFlow<Boolean> = _isLoadingSlides
+
     val pagingData: Flow<PagingData<Track>> = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 2),
         pagingSourceFactory = { TrendingTracksPagingSource(repository, 20) }
     ).flow.cachedIn(viewModelScope)
+
+    init {
+        loadSlidesFeed()
+    }
+
+    private fun loadSlidesFeed() {
+        viewModelScope.launch {
+            _isLoadingSlides.value = true
+            try {
+                // Load different types of tracks for variety
+                val topTracksDeferred = async { repository.getTopTracks(limit = 8) } // Bài hát phổ biến nhất
+                val latestTracksDeferred = async { repository.getLatestTracks(limit = 8) } // Bài hát mới nhất
+                val chillTracksDeferred = async { repository.getTracksByMood("chill", limit = 6) } // Nhạc chill
+                val rockTracksDeferred = async { repository.getTracksByGenre("rock", limit = 6) } // Nhạc rock
+                val electronicTracksDeferred = async { repository.getTracksByGenre("electronic", limit = 6) } // Nhạc electronic
+                val jazzTracksDeferred = async { repository.getTracksByGenre("jazz", limit = 6) } // Nhạc jazz
+                val acousticTracksDeferred = async { repository.getTracksByMood("acoustic", limit = 6) } // Nhạc acoustic
+                
+                _topTracks.value = topTracksDeferred.await()
+                _latestTracks.value = latestTracksDeferred.await()
+                _chillTracks.value = chillTracksDeferred.await()
+                _rockTracks.value = rockTracksDeferred.await()
+                _electronicTracks.value = electronicTracksDeferred.await()
+                _jazzTracks.value = jazzTracksDeferred.await()
+                _acousticTracks.value = acousticTracksDeferred.await()
+            } catch (e: Exception) {
+                // Handle error silently for slides feed
+            } finally {
+                _isLoadingSlides.value = false
+            }
+        }
+    }
 
     fun searchByGenre(genre: String) {
         viewModelScope.launch {
