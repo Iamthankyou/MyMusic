@@ -59,10 +59,20 @@ fun TrendingScreen(
     var homeQuery by androidx.compose.runtime.remember { mutableStateOf("") }
     val presetTags = listOf("Pop", "Rock", "Hip-Hop", "Chill", "Workout", "Lo-fi")
     
+    // Collect ViewModel states
+    val currentGenre by viewModel.currentGenre.collectAsState()
+    val isSearchingByGenre by viewModel.isSearchingByGenre.collectAsState()
+    val genreSearchResults by viewModel.genreSearchResults.collectAsState()
+    
     // Update loaded tracks when paging data changes
     LaunchedEffect(items.itemSnapshotList) {
         val tracks = items.itemSnapshotList.items
         viewModel.updateLoadedTracks(tracks)
+    }
+    
+    // Scroll to top when genre changes
+    LaunchedEffect(currentGenre) {
+        // This will trigger a recomposition and scroll to top
     }
     
     Column(modifier = Modifier.fillMaxSize()) {
@@ -105,71 +115,162 @@ fun TrendingScreen(
             items(presetTags) { tag ->
                 AssistChip(
                     onClick = {
-                        val encoded = Uri.encode(tag)
-                        navController?.navigate("search?query=$encoded")
+                        if (currentGenre == tag) {
+                            // If same genre is clicked again, clear the search
+                            viewModel.clearGenreSearch()
+                        } else {
+                            // Search by genre
+                            viewModel.searchByGenre(tag)
+                        }
                     },
-                    label = { Text(tag) }
+                    label = { Text(tag) },
+                    colors = androidx.compose.material3.AssistChipDefaults.assistChipColors(
+                        containerColor = if (currentGenre == tag) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        },
+                        labelColor = if (currentGenre == tag) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(JetcasterSpacing.md))
 
-        Text(
-            text = "Trending Tracks",
-            style = MaterialTheme.typography.headlineMedium,
+        // Dynamic title based on current state
+        val title = when {
+            currentGenre != null -> "$currentGenre Tracks"
+            else -> "Trending Tracks"
+        }
+        
+        Row(
             modifier = Modifier
-                .padding(JetcasterSpacing.md)
-                .accessibleHeading(level = 1)
-        )
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = JetcasterSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxWidth()
+                .padding(horizontal = JetcasterSpacing.md),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            val count = items.itemCount
-            items(count) { index ->
-                val track = items[index]
-                if (track != null) {
-                    // Get download status as Flow for real-time updates
-                    val downloadStatusFlow = remember(track.id) {
-                        viewModel.getDownloadStatusFlow(track.id)
-                    }
-                    val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
-                    
-                    TrackItem(
-                        track = track,
-                        onClick = { 
-                            viewModel.onTrackClicked(track)
-                            // Navigate to track detail if navController is available
-                            Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
-                            navController?.navigate("track_detail/${track.id}")
-                        },
-                        downloadStatus = downloadStatus,
-                        onDownloadClick = {
-                            viewModel.onDownloadClicked(track)
-                        }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.accessibleHeading(level = 1)
+                )
+                
+                // Show result count for genre search
+                if (currentGenre != null && !isSearchingByGenre) {
+                    Text(
+                        text = "${genreSearchResults.size} tracks found",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
-            items.apply {
-                when {
-                    loadState.refresh is androidx.paging.LoadState.Loading -> {
-                        item { AppLoading() }
+            
+            // Show back button when viewing genre results
+            if (currentGenre != null) {
+                androidx.compose.material3.TextButton(
+                    onClick = { viewModel.clearGenreSearch() }
+                ) {
+                    Text("Back to Trending")
+                }
+            }
+        }
+
+        // Show genre search results or trending tracks
+        if (currentGenre != null) {
+            // Show genre search results
+            if (isSearchingByGenre) {
+                AppLoading()
+            } else if (genreSearchResults.isEmpty()) {
+                AppEmpty(
+                    message = "No tracks found for $currentGenre",
+                    onRetry = { viewModel.searchByGenre(currentGenre!!) }
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = JetcasterSpacing.md),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(genreSearchResults) { track ->
+                        // Get download status as Flow for real-time updates
+                        val downloadStatusFlow = remember(track.id) {
+                            viewModel.getDownloadStatusFlow(track.id)
+                        }
+                        val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
+                        
+                        TrackItem(
+                            track = track,
+                            onClick = { 
+                                viewModel.onTrackClicked(track)
+                                // Navigate to track detail if navController is available
+                                Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
+                                navController?.navigate("track_detail/${track.id}")
+                            },
+                            downloadStatus = downloadStatus,
+                            onDownloadClick = {
+                                viewModel.onDownloadClicked(track)
+                            }
+                        )
                     }
-                    loadState.refresh is androidx.paging.LoadState.NotLoading && count == 0 -> {
-                        item { AppEmpty(onRetry = { refresh() }) }
+                }
+            }
+        } else {
+            // Show trending tracks
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = JetcasterSpacing.md),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val count = items.itemCount
+                items(count) { index ->
+                    val track = items[index]
+                    if (track != null) {
+                        // Get download status as Flow for real-time updates
+                        val downloadStatusFlow = remember(track.id) {
+                            viewModel.getDownloadStatusFlow(track.id)
+                        }
+                        val downloadStatus by downloadStatusFlow.collectAsState(initial = null)
+                        
+                        TrackItem(
+                            track = track,
+                            onClick = { 
+                                viewModel.onTrackClicked(track)
+                                // Navigate to track detail if navController is available
+                                Log.d("TrendingScreen", "Navigating to track detail: ${track.id} - ${track.title}")
+                                navController?.navigate("track_detail/${track.id}")
+                            },
+                            downloadStatus = downloadStatus,
+                            onDownloadClick = {
+                                viewModel.onDownloadClicked(track)
+                            }
+                        )
                     }
-                    loadState.append is androidx.paging.LoadState.Loading -> {
-                        item { AppLoading(fullscreen = false) }
-                    }
-                    loadState.refresh is androidx.paging.LoadState.Error -> {
-                        val e = loadState.refresh as androidx.paging.LoadState.Error
-                        item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
-                    }
-                    loadState.append is androidx.paging.LoadState.Error -> {
-                        val e = loadState.append as androidx.paging.LoadState.Error
-                        item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
+                }
+                items.apply {
+                    when {
+                        loadState.refresh is androidx.paging.LoadState.Loading -> {
+                            item { AppLoading() }
+                        }
+                        loadState.refresh is androidx.paging.LoadState.NotLoading && count == 0 -> {
+                            item { AppEmpty(onRetry = { refresh() }) }
+                        }
+                        loadState.append is androidx.paging.LoadState.Loading -> {
+                            item { AppLoading(fullscreen = false) }
+                        }
+                        loadState.refresh is androidx.paging.LoadState.Error -> {
+                            val e = loadState.refresh as androidx.paging.LoadState.Error
+                            item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
+                        }
+                        loadState.append is androidx.paging.LoadState.Error -> {
+                            val e = loadState.append as androidx.paging.LoadState.Error
+                            item { AppError(message = e.error.message ?: "Error", onRetry = { retry() }) }
+                        }
                     }
                 }
             }

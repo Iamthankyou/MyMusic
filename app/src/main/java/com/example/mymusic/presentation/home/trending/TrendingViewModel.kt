@@ -16,6 +16,7 @@ import com.example.mymusic.data.repository.AggregatedMusicRepository
 import com.example.mymusic.domain.model.Track
 import com.example.mymusic.playback.PlaybackController
 import com.example.mymusic.domain.usecase.DownloadTrackUseCase
+import com.example.mymusic.domain.usecase.SearchUseCase
 import com.example.mymusic.domain.repository.DownloadRepository
 import com.example.mymusic.data.local.DownloadStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,16 +29,64 @@ class TrendingViewModel @Inject constructor(
     private val repository: AggregatedMusicRepository,
     private val controller: PlaybackController,
     private val downloadTrackUseCase: DownloadTrackUseCase,
+    private val searchUseCase: SearchUseCase,
     private val downloadRepository: DownloadRepository
 ) : ViewModel() {
 
     private val _loadedTracks = MutableStateFlow<List<Track>>(emptyList())
     val loadedTracks: StateFlow<List<Track>> = _loadedTracks
 
+    private val _currentGenre = MutableStateFlow<String?>(null)
+    val currentGenre: StateFlow<String?> = _currentGenre
+
+    private val _isSearchingByGenre = MutableStateFlow(false)
+    val isSearchingByGenre: StateFlow<Boolean> = _isSearchingByGenre
+
+    private val _genreSearchResults = MutableStateFlow<List<Track>>(emptyList())
+    val genreSearchResults: StateFlow<List<Track>> = _genreSearchResults
+
     val pagingData: Flow<PagingData<Track>> = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 2),
         pagingSourceFactory = { TrendingTracksPagingSource(repository, 20) }
     ).flow.cachedIn(viewModelScope)
+
+    fun searchByGenre(genre: String) {
+        viewModelScope.launch {
+            try {
+                _isSearchingByGenre.value = true
+                _currentGenre.value = genre
+                
+                // Search for tracks by genre
+                val results = searchUseCase.searchByGenres(listOf(genre), limit = 50, offset = 0)
+                results.collect { tracks ->
+                    _genreSearchResults.value = tracks
+                    // Update loaded tracks for playback functionality
+                    _loadedTracks.value = tracks
+                }
+            } catch (e: Exception) {
+                // Handle error
+                _genreSearchResults.value = emptyList()
+                _loadedTracks.value = emptyList()
+            } finally {
+                _isSearchingByGenre.value = false
+            }
+        }
+    }
+
+    fun clearGenreSearch() {
+        _currentGenre.value = null
+        _isSearchingByGenre.value = false
+        _genreSearchResults.value = emptyList()
+        // Reset loaded tracks to trending tracks
+        _loadedTracks.value = emptyList()
+        
+        // Trigger refresh of trending tracks
+        viewModelScope.launch {
+            // Small delay to ensure UI updates
+            kotlinx.coroutines.delay(100)
+            // The paging data will automatically refresh
+        }
+    }
 
     fun onTrackClicked(track: Track) {
         val url = track.audioUrl ?: return
