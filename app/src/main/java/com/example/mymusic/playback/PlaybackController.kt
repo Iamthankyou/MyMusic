@@ -58,6 +58,8 @@ class PlaybackController @Inject constructor(
     val shuffleMode: StateFlow<Boolean> = _shuffleMode
 
     private val scope = CoroutineScope(Dispatchers.Main)
+    
+    private var pendingPlay = false
 
     init {
         setupAudioFocus()
@@ -65,6 +67,30 @@ class PlaybackController @Inject constructor(
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 scope.launch { _state.emit(_state.value.copy(isPlaying = isPlaying)) }
+            }
+            
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                when (playbackState) {
+                    Player.STATE_READY -> {
+                        // If we have a pending play request, start playing now
+                        if (pendingPlay) {
+                            pendingPlay = false
+                            // Try to play multiple times to ensure it works
+                            scope.launch {
+                                player.play()
+                                // Wait a bit and try again if not playing
+                                kotlinx.coroutines.delay(100)
+                                if (!player.isPlaying) {
+                                    player.play()
+                                }
+                            }
+                        }
+                    }
+                    Player.STATE_ENDED -> {
+                        // Track ended, update state
+                        scope.launch { _state.emit(_state.value.copy(isPlaying = false)) }
+                    }
+                }
             }
         })
         
@@ -129,8 +155,21 @@ class PlaybackController @Inject constructor(
         player.setMediaItem(item)
         player.prepare()
         
-        // Start playing immediately
-        player.play()
+        // Set pending play flag - will auto-play when STATE_READY
+        pendingPlay = true
+        
+        // Try to play immediately if already ready, otherwise wait for STATE_READY
+        if (player.playbackState == Player.STATE_READY) {
+            pendingPlay = false
+            player.play()
+            // Try again after a short delay to ensure it works
+            scope.launch {
+                kotlinx.coroutines.delay(200)
+                if (!player.isPlaying) {
+                    player.play()
+                }
+            }
+        }
         
         // Ensure foreground service is running
         try {
@@ -276,7 +315,23 @@ class PlaybackController @Inject constructor(
                 player.seekToDefaultPosition(index)
                 // Request audio focus before playing
                 requestAudioFocus()
-                player.play() // Actually start playing
+                
+                // Set pending play flag - will auto-play when STATE_READY
+                pendingPlay = true
+                
+                // Try to play immediately if already ready, otherwise wait for STATE_READY
+                if (player.playbackState == Player.STATE_READY) {
+                    pendingPlay = false
+                    player.play()
+                    // Try again after a short delay to ensure it works
+                    scope.launch {
+                        kotlinx.coroutines.delay(200)
+                        if (!player.isPlaying) {
+                            player.play()
+                        }
+                    }
+                }
+                
                 updateStateFromCurrentTrack()
                 
                 // Ensure foreground service is running
