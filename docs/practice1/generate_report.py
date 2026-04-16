@@ -12,8 +12,8 @@ from docx.oxml import OxmlElement
 
 IMG_DIR = r'd:\PROJECT\MyMusic\docs\practice1'
 IMG = {k: os.path.join(IMG_DIR, f'{k}.png') for k in
-       ['multi_agent_pipeline','three_methods','agents_detail',
-        'cursor_setup','why_multi_agent','output_doc','practice_series']}
+       ['pipeline_v3','three_methods_v3','agents_v3',
+        'setup_v3','evidence_trail','sources','practice_series_v3']}
 
 doc = Document()
 sec = doc.sections[0]
@@ -119,7 +119,7 @@ r = p.add_run('Submitted: 2026-04-16  |  Video Editor  |  Duy LQ')
 r.font.size=Pt(10); r.font.name='Calibri'; r.font.color.rgb=RGBColor(0x99,0x99,0x99)
 
 doc.add_paragraph()
-img('practice_series', 'This is Practice 1 of a 3-part series: Ideation -> Planning -> Code', 5.5)
+img('practice_series_v3', 'This is Practice 1 of a 3-part series: Ideation -> Planning -> Code', 5.5)
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
@@ -127,16 +127,17 @@ doc.add_page_break()
 # ══════════════════════════════════════════════════════════════
 info_table([
     ("Practice",           [{'text':'1 of 3: Multi-Agent Structured Ideation', 'bold':True, 'size':11}]),
-    ("Method Based On",    [{'text':'BMAD Method (Breakthrough Method for Agile AI-Driven Development)', 'bold':True},
-                             {'text':'Open-source multi-agent framework — github.com/bmad-code-org/BMAD-METHOD'}]),
-    ("Key Innovation",     [{'text':'4 specialized agents, each with ONE job and ONE output document', 'bold':True},
-                             {'text':'Separation of concerns: the agent who creates ideas is NOT the one who evaluates them'}]),
+    ("Method Based On",    [{'text':'BMAD Method + ClaudeKit Skills (both open-source)', 'bold':True},
+                             {'text':'BMAD: github.com/bmad-code-org/BMAD-METHOD (multi-agent personas)'},
+                             {'text':'ClaudeKit: docs-seeker (web search), problem-solving (inversion/scale), context-engineering (isolation)'}]),
+    ("Key Innovation",     [{'text':'4 agents that SEARCH THE WEB — not just training data', 'bold':True},
+                             {'text':'Every claim must have a source URL. Unvalidated claims are explicitly flagged.'}]),
     ("Tool",               [{'text':'Cursor IDE (Agent Mode + .cursor/rules/ files)', 'bold':True},
-                             {'text':'Also works with: Claude, ChatGPT, Windsurf, any AI with system prompts'}]),
+                             {'text':'Also works with: Claude Code, ChatGPT, Windsurf, Gemini (any AI with web search)'}]),
     ("Input",              [{'text':'A short initial idea (1-3 sentences)'}]),
-    ("Output",             [{'text':'Idea Specification Document (12 sections, evidence-backed)', 'bold':True}]),
+    ("Output",             [{'text':'Idea Specification Document (13 sections, evidence-backed, with source URLs)', 'bold':True}]),
     ("Time",               [{'text':'45-90 minutes total (4 separate AI sessions)'}]),
-    ("Files Included",     [{'text':'4 ready-to-use Cursor agent config files (.mdc)'}]),
+    ("Files Included",     [{'text':'4 ready-to-use Cursor agent config files (.mdc) with web search instructions'}]),
 ])
 
 # ══════════════════════════════════════════════════════════════
@@ -145,7 +146,7 @@ info_table([
 heading('1. Why Normal AI Brainstorming Doesn\'t Work', 1)
 body('There are 3 levels of using AI for brainstorming. Most people stop at Level 1:')
 
-img('three_methods', 'Figure 1: Three approaches — Ad-hoc, Structured Single Agent, Multi-Agent', 6.2)
+img('three_methods_v3', 'Figure 1: Three approaches — Ad-hoc, Single Agent, Multi-Agent with Web Research', 6.2)
 
 table(
     ['', 'Ad-hoc\n(Level 1)', 'Single Agent\n(Level 2)', 'Multi-Agent\n(Level 3 — This)'],
@@ -161,13 +162,17 @@ table(
     ]
 )
 
-heading('Why Multi-Agent Specifically?', 2)
-img('why_multi_agent', 'Figure 2: 4 problems with single-agent approach and how multi-agent fixes each', 5.5)
+heading('Why Multi-Agent + Web Research?', 2)
+img('sources', 'Figure 2: Sources — this method combines BMAD, ClaudeKit docs-seeker, problem-solving, and context engineering', 5.5)
 
-body('The core insight from BMAD Method: in real software teams, '
-     'the analyst is NOT the architect, the architect is NOT the developer, '
-     'and the developer is NOT the QA tester. Each role has a specific job. '
-     'The same principle applies to AI agents.', bold=True)
+body('The core insight: agents that don\'t search the web are just making things up from training data. '
+     'This method requires Agents 1-3 to use WebSearch for every claim. '
+     'Agent 3 (Evaluator) must verify Agent 2\'s data and flag anything unvalidated.', bold=True)
+body('Based on real open-source frameworks:')
+body('BMAD Method — multi-agent personas, document-driven handoff, 4-phase workflow (github.com/bmad-code-org/BMAD-METHOD)', bullet=True)
+body('ClaudeKit docs-seeker — WebSearch + WebFetch + parallel explorer agents for internet research', bullet=True)
+body('ClaudeKit problem-solving — Inversion Exercise ("what if it fails?") and Scale Game ("what breaks at 1000x?")', bullet=True)
+body('ClaudeKit context-engineering — 4-bucket strategy: Write, Select, Compress, Isolate (sub-agent isolation)', bullet=True)
 
 doc.add_page_break()
 
@@ -177,17 +182,17 @@ doc.add_page_break()
 heading('2. The 4-Agent Ideation Pipeline', 1)
 body('Each agent has ONE job, produces ONE document, and hands it to the next agent.')
 
-img('multi_agent_pipeline', 'Figure 3: The 4-agent pipeline — each agent produces one document that flows forward', 6.2)
+img('pipeline_v3', 'Figure 3: The 4-agent pipeline — Agents 1-3 search the internet, Agent 4 compiles', 6.2)
 
-img('agents_detail', 'Figure 4: What each agent does — inputs, job description, outputs, and hard rules', 6.0)
+img('agents_v3', 'Figure 4: What each agent does — job, web search scope, outputs, and hard rules', 6.0)
 
 table(
     ['Agent', 'Role', 'Input', 'Output', 'Key Rule'],
     [
-        ['1. Business Analyst',  'Requirements discovery', 'User\'s short idea', 'Requirements Brief',    'NEVER propose solutions'],
-        ['2. Market Researcher', 'Competitive + SCAMPER',  'Requirements Brief',  'Market Research Report', 'Use REAL app names'],
-        ['3. Idea Evaluator',    'Critical scoring',       'Brief + Research',    'Evaluation Report',      'NEVER give all 5s'],
-        ['4. Idea Crystallizer', 'Compile final spec',     'All 3 documents',     'Idea Specification Doc', 'Do NOT add new info'],
+        ['1. Requirements Analyst', 'Ask questions + validate via web search', 'User\'s short idea', 'Requirements Brief\n+ market data + existing solutions', 'NEVER assume — ASK or SEARCH'],
+        ['2. Market & Tech Researcher', 'Web search: competitors, APIs, SCAMPER', 'Requirements Brief', 'Research Report\n+ source URLs + API pricing', 'Every claim needs a URL'],
+        ['3. Critical Evaluator', 'Score vs real data, devil\'s advocate', 'Brief + Research Report', 'Evaluation Report\n+ evidence per score', 'NEVER give all 5s'],
+        ['4. Idea Compiler', 'Compile all + evidence trail', 'All 3 documents', 'Idea Spec (13 sections)\n+ full evidence trail', 'Do NOT add new info'],
     ]
 )
 
@@ -196,9 +201,10 @@ doc.add_page_break()
 # ══════════════════════════════════════════════════════════════
 #  3. AGENT 1: BUSINESS ANALYST
 # ══════════════════════════════════════════════════════════════
-heading('3. Agent 1: Business Analyst — "Ask, Don\'t Assume"', 1)
+heading('3. Agent 1: Requirements Analyst — "Ask, Don\'t Assume, Then Verify"', 1)
 
-body('This agent\'s only job is to ask questions and produce a Requirements Brief.', bold=True)
+body('This agent asks questions AND validates answers with web search. '
+     'If the user says "no app does this" — the agent MUST search to confirm.', bold=True)
 
 heading('What Questions It Asks', 2)
 table(
@@ -223,7 +229,12 @@ body('Round 1: Asks 10-15 initial questions across all 5 categories', bullet=Tru
 body('User answers (can be brief)', bullet=True)
 body('Round 2: Follows up on vague/broad answers with deeper questions', bullet=True)
 body('Round 3: Confirms understanding, asks "anything I missed?"', bullet=True)
-body('Only then does it produce the Requirements Brief.', bold=True)
+body('After Q&A, the agent runs web searches to validate user\'s claims:', bold=True)
+body('Search: "[product category] market size 2025" → find actual market data', bullet=True)
+body('Search: "[target audience] app usage statistics" → validate user segment exists', bullet=True)
+body('Search: "[similar apps] comparison" → find existing solutions user may have missed', bullet=True)
+body('Search: "[chosen tech stack] [key feature] library" → verify technical feasibility', bullet=True)
+body('Only then does it produce the Requirements Brief — with real data embedded.', bold=True)
 
 heading('Output: Requirements Brief', 2)
 body('A structured markdown document with these sections:')
@@ -240,10 +251,11 @@ doc.add_page_break()
 # ══════════════════════════════════════════════════════════════
 #  4. AGENT 2: MARKET RESEARCHER
 # ══════════════════════════════════════════════════════════════
-heading('4. Agent 2: Market Researcher — "What Already Exists?"', 1)
+heading('4. Agent 2: Market & Tech Researcher — "Search Everything"', 1)
 
-body('This agent receives the Requirements Brief and researches the real market.', bold=True)
-body('It produces 4 deliverables:')
+body('This agent\'s ENTIRE job is to search the web. Every single claim '
+     'must have a source URL. No URL = marked as "[UNVALIDATED]".', bold=True)
+body('It produces 5 deliverables, ALL from web search:')
 
 heading('4.1  Competitive Analysis Table', 2)
 body('Finds 4-6 existing apps/products that solve a similar problem:')
@@ -272,10 +284,18 @@ table(
     ]
 )
 
-heading('4.3  Risk Assessment', 2)
-body('Technical, Market, Legal, and Dependency risks — each with mitigation.')
+heading('4.3  Risk Assessment (from web search)', 2)
+body('For each risk, agent must search for evidence:')
+body('Search: "[API name] deprecation" → has this API ever been discontinued?', bullet=True)
+body('Search: "[service] outage history" → how reliable is this dependency?', bullet=True)
+body('Search: "[domain] licensing requirements" → any legal barriers?', bullet=True)
 
-heading('4.4  Market Gap Analysis', 2)
+heading('4.4  Problem-Solving Techniques (from ClaudeKit)', 2)
+body('Agent 2 also applies 2 techniques from ClaudeKit\'s problem-solving skills:', bold=True)
+body('Inversion Exercise: "If this project fails in 6 months, what was the cause?"', bullet=True)
+body('Scale Game: "What works at 100 users? What breaks at 10,000? What\'s impossible at 1M?"', bullet=True)
+
+heading('4.5  Market Gap Analysis', 2)
 body('The key question: "What do ALL competitors miss that this idea could fill?"')
 
 doc.add_page_break()
@@ -283,10 +303,10 @@ doc.add_page_break()
 # ══════════════════════════════════════════════════════════════
 #  5. AGENT 3: IDEA EVALUATOR
 # ══════════════════════════════════════════════════════════════
-heading('5. Agent 3: Idea Evaluator — "Devil\'s Advocate"', 1)
+heading('5. Agent 3: Critical Evaluator — "Devil\'s Advocate"', 1)
 
-body('This agent is the critical judge. Its job is to be harsh, not positive. '
-     'It receives both the Requirements Brief AND the Market Research Report.', bold=True)
+body('This agent is the critical judge. It scores ideas ONLY against real data '
+     'from Agent 2\'s Research Report. If data is missing, score = 2 with "[DATA MISSING]" flag.', bold=True)
 
 heading('Why a Separate Evaluator?', 2)
 body('If the same agent creates ideas AND judges them, it has creator bias — '
@@ -326,12 +346,13 @@ doc.add_page_break()
 # ══════════════════════════════════════════════════════════════
 #  6. AGENT 4: CRYSTALLIZER
 # ══════════════════════════════════════════════════════════════
-heading('6. Agent 4: Idea Crystallizer — "Compile & Finalize"', 1)
+heading('6. Agent 4: Idea Compiler — "Compile + Evidence Trail"', 1)
 
 body('The final agent receives ALL 3 previous documents and synthesizes them '
-     'into ONE Idea Specification Document with 12 sections.', bold=True)
+     'into ONE Idea Specification Document with 13 sections. Note: Agent 4 does NOT '
+     'search the web — it only compiles what the other agents produced.', bold=True)
 
-img('output_doc', 'Figure 5: The 12-section Idea Specification Document — each section traced to its source agent', 5.5)
+img('evidence_trail', 'Figure 5: Evidence Trail — every claim is traced back to a source URL or flagged as unvalidated', 5.5)
 
 body('Traceability: each section comes from a specific agent:')
 table(
@@ -348,7 +369,8 @@ table(
         ['9. SCAMPER Variants Explored',  'Market Researcher',   'Alternative approaches, why runner-up wasn\'t chosen'],
         ['10. Risk Analysis',             'Market Researcher',   'Technical, market, legal, dependency risks'],
         ['11. Assumptions to Validate',   'Idea Evaluator',      'Hypotheses that need to be tested'],
-        ['12. Next Step',                 'Crystallizer',        '"This doc is the input for Practice 2: Planning"'],
+        ['12. Evidence Trail',             'Compiler',            'All source URLs cited across all agent outputs'],
+        ['13. Next Step',                 'Compiler',            '"This doc is the input for Practice 2: Planning"'],
     ]
 )
 
@@ -359,28 +381,29 @@ doc.add_page_break()
 # ══════════════════════════════════════════════════════════════
 heading('7. How to Set Up in Cursor (Step-by-Step)', 1)
 
-img('cursor_setup', 'Figure 6: Cursor setup — copy 4 .mdc files, then run 4 separate chat sessions', 5.5)
+img('setup_v3', 'Figure 6: Cursor setup — copy 4 .mdc files, then run 4 separate chat sessions', 5.5)
 
 heading('Step 1: Copy Agent Files', 2)
 body('Copy the 4 .mdc files from practice1/agents/ into your project\'s .cursor/rules/ folder:')
 code('your-project/\n'
      '  .cursor/\n'
      '    rules/\n'
-     '      01-business-analyst.mdc\n'
+     '      01-requirements-analyst.mdc\n'
      '      02-market-researcher.mdc\n'
      '      03-idea-evaluator.mdc\n'
-     '      04-idea-crystallizer.mdc')
+     '      04-idea-compiler.mdc')
 
-heading('Step 2: Agent 1 — Business Analyst', 2)
-body('Open a NEW Cursor Agent Mode chat. Select the "01-business-analyst" rule.')
+heading('Step 2: Agent 1 — Requirements Analyst', 2)
+body('Open a NEW Cursor Agent Mode chat. Select the "01-requirements-analyst" rule.')
 body('Type your seed idea:')
 code('I have an idea for a project. Here it is:\n'
      '"I want to make a music streaming app using Flutter + Firebase\n'
      'that helps young people discover independent artists.\n'
      'Something like Spotify but for indie music."')
 body('The agent will ask 10-15 questions. Answer them. '
-     'After 2-3 rounds, it produces a Requirements Brief.', bold=True)
-body('Save the Requirements Brief to a file (e.g., docs/requirements-brief.md).', bold=True)
+     'After 2-3 rounds, the agent will search the web to validate your answers, '
+     'then produces a Requirements Brief with real market data.', bold=True)
+body('Save the Requirements Brief to a file (e.g., docs/01-requirements-brief.md).', bold=True)
 
 heading('Step 3: Agent 2 — Market Researcher', 2)
 body('Open a NEW chat. Select "02-market-researcher" rule.')
@@ -397,19 +420,21 @@ code('"Here are 2 documents from previous agents.\n'
      'Please score the top 4-5 ideas and recommend a winner."')
 body('Save the Evaluation Report.', bold=True)
 
-heading('Step 5: Agent 4 — Crystallizer', 2)
-body('Open a NEW chat. Select "04-idea-crystallizer" rule.')
+heading('Step 5: Agent 4 — Compiler', 2)
+body('Open a NEW chat. Select "04-idea-compiler" rule.')
 body('Paste ALL 3 previous documents:')
 code('"Here are 3 documents from the previous agents.\n'
      '[Requirements Brief]\n...\n[Market Research Report]\n...\n[Evaluation Report]\n...\n'
      'Please compile into the final Idea Specification Document."')
-body('The output is your final Idea Spec — the input for Practice 2 (Planning).', bold=True)
+body('The output is your final Idea Spec (13 sections with full evidence trail) '
+     '— the input for Practice 2 (Planning).', bold=True)
 
 heading('Why Separate Chats?', 2)
-body('Fresh context window: each agent gets only what it needs, not 50 pages of history', bullet=True)
-body('No role confusion: Agent 3 can\'t see Agent 1\'s thought process, only its output', bullet=True)
-body('Reproducible: same 4 file configs + same process = consistent quality every project', bullet=True)
-body('Debuggable: if the evaluation is bad, you only re-run Agent 3, not everything', bullet=True)
+body('Fresh context window (from ClaudeKit context-engineering: Isolate sub-agents)', bullet=True)
+body('No role confusion: Agent 3 can\'t see Agent 1\'s reasoning, only its document', bullet=True)
+body('Reproducible: same 4 configs = same process every time', bullet=True)
+body('Debuggable: if evaluation is wrong, re-run Agent 3 only', bullet=True)
+body('Web search is NOT optional — agents are REQUIRED to search (not just trained data)', bullet=True)
 
 doc.add_page_break()
 
@@ -485,10 +510,10 @@ body('The 4 .mdc files are included in practice1/agents/. '
 table(
     ['File', 'Lines', 'Key Sections'],
     [
-        ['01-business-analyst.mdc',   '~55', 'Role, Job (5 question categories), Output format (Requirements Brief), Rules'],
-        ['02-market-researcher.mdc',  '~55', 'Role, Job (4 deliverables: competitors, SCAMPER, risks, gaps), Rules'],
-        ['03-idea-evaluator.mdc',     '~60', 'Role, Job (scoring matrix, evidence), Output format (Evaluation Report), Rules'],
-        ['04-idea-crystallizer.mdc',  '~50', 'Role, Job (compile), Output format (12-section Idea Spec), Rules'],
+        ['01-requirements-analyst.mdc', '~80', 'Ask 10-15 questions + WebSearch to validate user answers + Requirements Brief output'],
+        ['02-market-researcher.mdc',    '~90', 'WebSearch for competitors, API pricing, SCAMPER variants, risk evidence, ClaudeKit problem-solving'],
+        ['03-idea-evaluator.mdc',       '~80', 'Score vs real data from Agent 2, devil\'s advocate, verify claims, flag unvalidated'],
+        ['04-idea-compiler.mdc',        '~60', 'Compile all 3 docs into 13-section Idea Spec + evidence trail (NO web search)'],
     ]
 )
 body('These files are ready to use — copy them to .cursor/rules/ and start immediately.')

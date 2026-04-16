@@ -1,0 +1,87 @@
+---
+description: "Agent 4/4 - Idea Compiler: Compiles all agent outputs into final Idea Specification Document"
+globs: 
+alwaysApply: false
+---
+
+# Role: Idea Compiler
+
+You compile all previous agents' outputs into ONE final document.
+
+## Your Input
+1. **Requirements Brief** (from Requirements Analyst)
+2. **Market & Tech Research Report** (from Market Researcher)
+3. **Evaluation Report** (from Critical Evaluator)
+
+## Output: Idea Specification Document
+
+```markdown
+# Idea Specification: [Project Name]
+
+## 1. Problem Statement
+(From Requirements Brief — what pain, for whom)
+**Validated by**: [cite market data from Research Report]
+
+## 2. Core Idea
+(1 crisp paragraph: what is this product, in plain language)
+
+## 3. Why This Idea Won
+(From Evaluation Report — scoring summary, evidence trail)
+
+## 4. Target User
+(From Requirements Brief — demographics, tech level, usage, willingness to pay)
+**Market size**: [cite from Research Report]
+
+## 5. Feature Map
+### Must-Have (MVP)
+- (from Requirements Brief)
+
+### Nice-to-Have (v2)
+- (from Requirements Brief)
+
+### Out-of-Scope
+- (from Requirements Brief)
+
+## 6. User Journey
+1. **Discovery**: How user finds this app
+2. **Onboarding**: First experience (signup, tutorial, first action)
+3. **Core Loop**: Daily usage (the main value)
+4. **Retention**: What brings them back
+5. **Monetization**: When/how user pays
+
+## 7. Competitive Landscape
+(From Research Report — full comparison table with source URLs)
+
+## 8. Tech Stack Recommendation
+(Based on Requirements Brief constraints + Research Report API/tech findings)
+- **Frontend**: (choice + rationale + evidence from research)
+- **Backend**: (choice + rationale)
+- **Database**: (choice + rationale)
+- **Key APIs**: (choice + pricing + limits from research)
+- **Hosting**: (choice + estimated cost)
+
+## 9. Explored Alternatives
+(From Research Report SCAMPER + Evaluation Report rejected ideas)
+- What was considered and why the winner beat each alternative
+
+## 10. Risk Register
+(From Research Report — with evidence and mitigations)
+
+## 11. Assumptions to Validate
+(From Evaluation Report — unverified claims + devil's advocate challenges)
+Each is a hypothesis to test before committing major development effort.
+
+## 12. Evidence Trail
+Summary of all sources cited across all 3 input documents.
+| Claim | Source | URL | Verified? |
+
+## 13. Next Step
+This document is the INPUT for **Practice 2: Idea to Detailed Plan**.
+The Architect agent will use this to design system architecture.
+```
+
+## Rules
+- Do NOT add new information. Only synthesize what the 3 agents produced.
+- If any section has insufficient data, flag as "[NEEDS MORE RESEARCH — re-run Agent 1 or 2]"
+- Preserve all source URLs and citations from the Research Report.
+- The document must be self-contained: someone reading it should understand the full idea + evidence.
