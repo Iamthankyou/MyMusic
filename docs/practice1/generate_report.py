@@ -1,6 +1,6 @@
 """
 Practice 1: Multi-Agent Ideation Pipeline
-Word report — Focused on: why it's better, how to use it, real examples
+Word report — Sales pitch style: why it's better, how it works, real examples
 """
 import os
 from docx import Document
@@ -12,8 +12,7 @@ from docx.oxml import OxmlElement
 
 IMG_DIR = r'd:\PROJECT\MyMusic\docs\practice1'
 IMG = {k: os.path.join(IMG_DIR, f'{k}.png') for k in
-       ['pipeline_v5_maxpower','comparison_v5_evolution','agents_v5_detail',
-        'techniques_v5','evidence_v5','setup_v5','sources_v5','series_v5']}
+       ['pipeline','comparison','agents_detail','evidence','setup','series']}
 
 doc = Document()
 sec = doc.sections[0]
@@ -32,21 +31,6 @@ def run(p, text, bold=False, italic=False, sz=10, color=None, font='Calibri'):
     r = p.add_run(text); r.bold=bold; r.italic=italic; r.font.size=Pt(sz); r.font.name=font
     if color: r.font.color.rgb = RGBColor(*bytes.fromhex(color))
     return r
-
-def lcell(cell, text):
-    shade(cell, '2E4057')
-    p = cell.paragraphs[0]; p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    r = p.add_run(text); r.bold=True; r.font.size=Pt(10); r.font.name='Calibri'
-    r.font.color.rgb = RGBColor(255,255,255)
-    cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-
-def vcell(cell, items):
-    first = True
-    for it in items:
-        p = cell.paragraphs[0] if first else cell.add_paragraph(); first=False
-        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        run(p, it.get('text',''), bold=it.get('bold',False), sz=it.get('size',10),
-            color=it.get('color'))
 
 def heading(text, level=1):
     p = doc.add_paragraph(); r = p.add_run(text); r.bold=True; r.font.name='Calibri'
@@ -74,14 +58,6 @@ def img(key, caption=None, w=6.0):
             r = c.add_run(caption); r.italic=True; r.font.size=Pt(8.5)
             r.font.color.rgb=RGBColor(0x66,0x66,0x66); r.font.name='Calibri'
 
-def info_table(rows):
-    t = doc.add_table(rows=len(rows), cols=2); t.style='Table Grid'
-    t.alignment = WD_TABLE_ALIGNMENT.CENTER
-    for i,(l,c) in enumerate(rows):
-        row=t.rows[i]; row.cells[0].width=Cm(4.5); row.cells[1].width=Cm(13)
-        lcell(row.cells[0],l); vcell(row.cells[1],c)
-    doc.add_paragraph()
-
 def table(headers, data):
     nc=len(headers); t=doc.add_table(rows=1+len(data), cols=nc)
     t.style='Table Grid'; t.alignment=WD_TABLE_ALIGNMENT.CENTER
@@ -99,7 +75,6 @@ def table(headers, data):
     doc.add_paragraph()
 
 def callout(text, bg='FFF8E1'):
-    """Yellow callout box"""
     t = doc.add_table(rows=1, cols=1); t.style='Table Grid'
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
     shade(t.rows[0].cells[0], bg)
@@ -125,472 +100,465 @@ r.font.size=Pt(12); r.font.name='Calibri'; r.font.color.rgb=RGBColor(0x48,0x6F,0
 
 doc.add_paragraph()
 p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = p.add_run('Submitted: 2026-04-16  |  Video Editor  |  Duy LQ')
+r = p.add_run('Submitted: 2026-04-17  |  Video Editor  |  Duy LQ')
 r.font.size=Pt(10); r.font.name='Calibri'; r.font.color.rgb=RGBColor(0x99,0x99,0x99)
 
 doc.add_paragraph()
-img('series_v5', 'This is Practice 1 of a 3-part series: Ideation → Planning → Code', 5.5)
+img('series', 'This is Practice 1 of a 3-part series: Ideation → Planning → Code', 5.5)
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
-#  1. THE PROBLEM — Why This Matters
+#  1. THE PROBLEM
 # ══════════════════════════════════════════════════════════════
-heading('1. The Problem: Why Most AI Brainstorming Is Useless', 1)
+heading('1. The Problem: Why Most AI Brainstorming Doesn\'t Work', 1)
 
 body('Most people brainstorm with AI like this:')
 callout('💬 "Hey ChatGPT, I want to make a music app for indie artists. What do you think?"')
 
-body('And they get back a wall of generic advice that SOUNDS good but:')
-body('❌ Has no real data — the AI makes up market sizes and competitor names', bullet=True)
-body('❌ Has no sources — you can\'t verify anything it says', bullet=True)
-body('❌ Never challenges you — it agrees with everything you say', bullet=True)
-body('❌ Misses competitors — it doesn\'t actually search the internet', bullet=True)
-body('❌ Gives you confidence without evidence — the most dangerous outcome', bullet=True)
+body('The AI responds with a confident, detailed answer that SOUNDS helpful. '
+     'The problem? Almost none of it is verifiable:')
 
-body('The result? You feel productive but you\'ve learned nothing real. '
-     'You start building a product based on hallucinated data.', bold=True)
+table(
+    ['What the AI Says', 'The Real Problem'],
+    [
+        ['"Competitors include Spotify, SoundCloud,\nand Bandcamp."',
+         'Did it actually search? Or just recall from\ntraining data? No URLs to verify.'],
+        ['"The music streaming market is\nestimated at $30 billion."',
+         'Source? There is no source.\nThis number could be from 2021 or completely made up.'],
+        ['"This is a promising idea with\ngreat potential."',
+         'Of course it says that — it\'s trained to be positive.\nIt never challenges your assumptions.'],
+        ['"You could use React Native\nwith a Spotify API."',
+         'Did it check Spotify API pricing? Rate limits?\nTerms of service? No.'],
+        ['"There\'s a gap in the market for\nindie music discovery."',
+         'Based on what evidence?\nIt doesn\'t know what launched last week.'],
+    ]
+)
 
-heading('What Does "Good" Brainstorming Look Like?', 2)
-body('A proper product ideation should give you:')
-body('✅ Real competitor data with URLs you can click and verify', bullet=True)
-body('✅ Actual market size numbers from real research reports', bullet=True)
-body('✅ A devil\'s advocate that challenges your assumptions', bullet=True)
-body('✅ Alternative approaches you hadn\'t considered', bullet=True)
-body('✅ An honest "should you build this?" verdict based on evidence', bullet=True)
+body('The dangerous part is not that the AI is wrong — it\'s that you feel confident '
+     'and start building a product based on information nobody verified.', bold=True)
 
-body('This method gives you ALL of those — automatically.', bold=True)
+heading('What Would "Good" AI Brainstorming Look Like?', 2)
+body('Imagine if instead of 1 generic AI chat, you had:')
+body('A requirements analyst who asks you 10-15 structured questions '
+     'before making any suggestions — and then SEARCHES the internet to verify your answers.', bullet=True)
+body('A market researcher who finds actual market size data WITH clickable source URLs '
+     'from Statista, Grand View Research, etc.', bullet=True)
+body('A competitor analyst who finds 5+ real competing apps, '
+     'reads their 1-star App Store reviews, and finds user complaints on Reddit.', bullet=True)
+body('A tech scout who checks actual API pricing pages, rate limits, and terms of service.', bullet=True)
+body('A devil\'s advocate evaluator who scores your idea on 8 dimensions '
+     'and REQUIRES evidence for each score — no free passes.', bullet=True)
+body('A risk assessor who asks "How would I GUARANTEE this project fails?" '
+     'and searches for legal requirements you hadn\'t considered.', bullet=True)
+
+body('That\'s exactly what this method does. And it costs nothing extra — '
+     'just your existing Cursor subscription.', bold=True)
 
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
-#  2. BEFORE vs AFTER — The Real Comparison
+#  2. SIDE-BY-SIDE COMPARISON
 # ══════════════════════════════════════════════════════════════
 heading('2. Traditional AI Brainstorming vs This Method', 1)
 
-body('Let\'s compare with a real example. Imagine you have this idea:')
-callout('💡 "I want to make a music streaming app focused on independent artists, like Spotify but for indie music."')
+body('Let\'s use a real example. Same idea, two different approaches:', bold=True)
+callout('💡 Idea: "I want to make a music streaming app focused on independent artists, like Spotify but for indie music."')
 
-heading('What Happens with the Traditional Approach', 2)
-body('You ask ChatGPT / Cursor / Claude in 1 chat session:', bold=True)
-
-table(
-    ['You Ask', 'AI Responds', 'The Problem'],
-    [
-        ['"What competitors exist?"',
-         '"Some competitors include\nSpotify, SoundCloud, and\nBandcamp..."',
-         'No URLs. No user counts.\nNo pricing data.\nMight not even be accurate.'],
-        ['"What\'s the market size?"',
-         '"The music streaming market\nis estimated at $30 billion..."',
-         'Where did $30B come from?\nNo source. Could be made up.\nNo way to verify.'],
-        ['"Is my idea good?"',
-         '"Yes, this is a promising idea\nwith great potential..."',
-         'Of course it says yes.\nIt\'s trained to be helpful.\nNo critical analysis.'],
-        ['"What tech should I use?"',
-         '"You could use React Native\nwith Firebase and Spotify API"',
-         'Did it check Spotify API pricing?\nDid it check rate limits?\nNo.'],
-    ]
-)
-body('Total time: ~15 minutes. Total verifiable facts: probably 0.', bold=True)
-
-heading('What Happens with This Method', 2)
-body('You type 1 sentence. Then 8 specialized AI agents work for you:', bold=True)
-
-table(
-    ['Agent Does', 'What You Get', 'Why It\'s Different'],
-    [
-        ['Agent 1 asks you 10-15\nstructured questions',
-         'A proper Requirements Brief\nwith validated assumptions',
-         'Forces you to think through WHO,\nWHAT, WHY, HOW, CONSTRAINTS.\nThen searches web to verify.'],
-        ['Agent 2 searches the internet\nfor market data',
-         'TAM: $28.6B (Grand View Research)\nSAM: $4.2B indie music\nwith source URLs',
-         'Every number has a clickable\nsource URL. You can verify\neverything yourself.'],
-        ['Agent 3 finds 5+ real\ncompetitors',
-         'Bandcamp: 8M users, $201M rev\nDistroKid: $35.99/yr\n... with App Store links',
-         'Real products with real URLs,\nreal pricing, real user quotes\nfrom Reddit/App Store reviews.'],
-        ['Agent 4 searches for APIs\nand checks pricing',
-         'Spotify API: free tier 100 req/min\nYouTube API: 10K units/day free\nFirebase: free up to 50K MAU',
-         'Actual pricing pages checked.\nRate limits verified.\nNo hallucinated APIs.'],
-        ['Agent 5 scores your idea\non 8 dimensions',
-         'Feasibility: 4/5 — evidence: ...\nMarket demand: 3/5 — evidence: ...\nVerdict: CONDITIONAL GO',
-         'Every score has 1 sentence\nof evidence. No free passes.\nDevil\'s advocate built in.'],
-        ['Agent 6 designs the UX\nwith research',
-         'Time-to-aha: 2 min (benchmark)\nOnboarding: 3 steps max\nHook model mapped',
-         'Based on NNGroup/Baymard\nresearch, not guessing.\nCompetitor weakness analysis.'],
-        ['Agent 7 identifies risks\nwith legal research',
-         'Music licensing: CRITICAL risk\nGDPR compliance needed\nAPI dependency: HIGH risk',
-         'Actually searches for\nregulations. Finds real legal\nrequirements with URLs.'],
-        ['Agent 8 compiles everything\ninto 1 document',
-         '13-Section Idea Specification\nFull evidence trail\nGO / PIVOT / KILL verdict',
-         'Nothing made up. Every claim\ntraced to a source.\nConfidence score for spec.'],
-    ]
-)
-body('Total time: ~20 minutes. Total verifiable facts: 30+.', bold=True)
-
-doc.add_page_break()
-
-# ══════════════════════════════════════════════════════════════
-#  3. SIDE-BY-SIDE SUMMARY
-# ══════════════════════════════════════════════════════════════
-heading('3. Side-by-Side Comparison', 1)
-
-img('comparison_v5_evolution', 'Traditional (1 chat) vs Structured Ideation (8 agents, parallel, evidence-backed)', 6.2)
+img('comparison', 'Side-by-side: Traditional gives you opinions. This method gives you evidence.', 6.2)
 
 table(
     ['', 'Traditional\n(1 AI chat)', 'This Method\n(8 agents)'],
     [
-        ['You type',               '20+ messages',              '1 sentence + answer 10-15 questions'],
-        ['Agents working',         '1 (does everything)',        '8 specialists (6 run in parallel)'],
-        ['Internet research',      'No (uses training data)',   'Yes (every agent searches the web)'],
-        ['Competitors found',      '0-2 (often wrong)',         '5+ with URLs, users, pricing'],
-        ['Market data',            'Made up or vague',          'With source URLs you can click'],
-        ['Critical analysis',      'None (AI agrees with you)', 'Dedicated evaluator + risk assessment'],
-        ['Evidence per claim',     'None',                      'Source URL + confidence score'],
-        ['Confidence score',       'No',                        'Yes (90%/60%/low per claim)'],
-        ['Can you verify claims?', 'No',                        'Yes — every URL is clickable'],
-        ['Output',                 'A chat transcript',         '13-section document with evidence'],
-        ['Reproducible?',          'No',                        'Yes — same agents, same process'],
-        ['Time',                   '~15 min',                   '~20 min (but 10x more output)'],
+        ['You type',               '20+ messages, back-and-forth',     '1 sentence + answer 10-15 questions'],
+        ['How many AI "brains"',   '1 (does everything, biased)',      '8 specialists (each has fresh context)'],
+        ['Does it search the web?','No — uses training data',          'Yes — every agent searches the internet'],
+        ['Real competitors?',      'Maybe 2-3, often wrong names',     '5+ with URLs, pricing, user counts'],
+        ['Market size data?',      '"About $30B" — no source',        '"$28.6B" — Grand View Research [URL]'],
+        ['API pricing checked?',   'No — just mentions API names',    'Yes — actual pricing pages visited'],
+        ['Anyone challenge you?',  'Never — AI agrees with you',      'Yes — Agent 5 is a dedicated critic'],
+        ['Legal research?',        'None',                             'GDPR, CCPA, licensing laws searched'],
+        ['Evidence per claim?',    'None — 0 source URLs',            'Source URL + confidence level'],
+        ['Can you verify?',        'No — just trust it',              'Yes — every URL is clickable'],
+        ['Output format',          'A scrollable chat transcript',    '13-section document'],
+        ['Time',                   '~15 minutes',                      '~20 minutes'],
+        ['Verifiable facts',       '~0',                               '30+'],
     ]
 )
 
-callout('💡 The key difference: traditional brainstorming gives you OPINIONS.\n'
-        'This method gives you EVIDENCE. Every claim has a source you can check.')
+callout('💡 The key insight: traditional brainstorming gives you OPINIONS that sound good.\n'
+        'This method gives you EVIDENCE you can verify.\n\n'
+        'Same amount of time. Completely different quality of output.')
 
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
-#  4. HOW IT WORKS — Simple Explanation
+#  3. HOW IT WORKS — STEP BY STEP
 # ══════════════════════════════════════════════════════════════
-heading('4. How It Works (Simple Version)', 1)
+heading('3. How It Works: A Complete Walkthrough', 1)
 
-body('Think of it like visiting a hospital. '
-     'You don\'t get 1 doctor who does everything. '
-     'You get a specialist for each concern:', bold=True)
+body('Think of it like a medical checkup. You don\'t see 1 doctor who does everything. '
+     'You see specialists — and each only sees your test results, '
+     'not what you told the previous doctor. This prevents bias.', bold=True)
+
+img('pipeline', 'The full pipeline: your 1 prompt flows through 4 phases, 8 agents, with quality checks', 6.2)
+
+heading('Phase 1: Understanding Your Idea (2-5 minutes)', 2)
+body('You type your idea. Agent 1 (Requirements Analyst) doesn\'t start working — '
+     'it asks YOU questions first.', bold=True)
+body('This is different from normal AI brainstorming where the AI immediately '
+     'starts generating ideas. Here, the AI wants to UNDERSTAND before suggesting anything.')
+
+heading('Example: What the Conversation Looks Like', 3)
+table(
+    ['Agent Asks', 'You Respond', 'Why It Matters'],
+    [
+        ['"Who is your target user?\nAge range? Tech-savvy?"',
+         '"Vietnamese millennials,\n22-35, use Spotify daily"',
+         'Defines the UX complexity\nand pricing strategy'],
+        ['"What makes this different\nfrom Spotify or Bandcamp?"',
+         '"Focus on Vietnamese\nindie artists specifically"',
+         'This is your USP —\nthe agent will verify it'],
+        ['"What\'s your budget for MVP?\nTimeline?"',
+         '"$5K, 3 months,\n1 developer"',
+         'Determines what\'s\nrealistic to build'],
+        ['"Any licensing concerns?\nMusic rights?"',
+         '"I\'m not sure"',
+         'Agent flags this for\ndeep research by Agent 7'],
+    ]
+)
+
+body('After your answers, the agent doesn\'t just accept them. '
+     'It CHALLENGES your assumptions:', bold=True)
+callout('🔍 Agent 1: "You said no app focuses on Vietnamese indie artists.\n'
+        'Let me search to verify... I found:\n'
+        '• NhacCuaTui (14M users) — has indie section\n'
+        '• Zing MP3 (now ZingMP3) — Vietnamese focus\n'
+        '• Keeng.vn — local streaming service\n'
+        'Your assumption may need revision."')
+
+body('This alone is worth more than an entire traditional brainstorming session. '
+     'You discovered 3 competitors you didn\'t know about.', bold=True)
+
+doc.add_page_break()
+
+heading('Phase 2: Research (3 agents work at the SAME TIME, ~5 min)', 2)
+body('While you wait, 3 specialist agents work simultaneously:')
+
+heading('Agent 2: Market Researcher — What Does the Data Say?', 3)
+body('Searches for real market data with source URLs:')
+table(
+    ['What It Searches', 'Example Result'],
+    [
+        ['"music streaming market size 2025"', 'TAM: $35.7B globally — Grand View Research [URL]'],
+        ['"Vietnam music streaming users"', 'SAM: 40M users in Vietnam — Statista [URL]'],
+        ['"indie music market revenue"', '~$4.2B globally, growing 12% YoY — MIDiA [URL]'],
+        ['"freemium conversion rate music"', '3-6% average — Revenue Cat report [URL]'],
+    ]
+)
+body('Then it stress-tests at extremes: "At 1M users, API costs would be $X/month. '
+     'At only 100 users, does this app even make sense?"', bold=True)
+
+heading('Agent 3: Tech Scout — Can We Actually Build This?', 3)
+body('Checks actual API pricing and requirements:')
+table(
+    ['What It Checks', 'Example Finding'],
+    [
+        ['Spotify API free tier', '100 requests/min, no streaming rights — [pricing URL]'],
+        ['Firebase hosting costs', 'Free up to 50K MAU, then $0.01/MAU — [URL]'],
+        ['YouTube API quotas', '10,000 units/day free, $0 for search — [URL]'],
+        ['Audio streaming CDN', 'Cloudflare R2: $0.015/GB egress — [URL]'],
+    ]
+)
+body('It also spots patterns: "Every API you need has rate limits at scale. '
+     'You need a caching layer from day 1."', bold=True)
+
+heading('Agent 4: Competitor Analyst — Who Already Does This?', 3)
+body('Finds 5+ real competitors with evidence:')
+table(
+    ['Found', 'Details'],
+    [
+        ['Bandcamp', '8M users, $201M GMV, artist-first — bandcamp.com'],
+        ['DistroKid', '$35.99/year distribution — distrokid.com'],
+        ['NhacCuaTui', '14M users, Vietnamese focus — nhaccuatui.com'],
+        ['Zing MP3', '50M+ users, dominant in Vietnam — zingmp3.vn'],
+        ['SoundCloud', '175M users, indie-friendly — soundcloud.com'],
+    ]
+)
+body('Then reads 1-star App Store reviews and Reddit complaints to find what '
+     'users actually hate about these apps. This reveals your real opportunities.', bold=True)
+
+doc.add_page_break()
+
+heading('Phase 3: Evaluation (3 agents work at the SAME TIME, ~5 min)', 2)
+body('Three evaluation agents work simultaneously on different angles:')
+
+heading('Agent 5: Idea Evaluator — Should You Build This?', 3)
+body('Scores your idea on 8 dimensions. Each score MUST have 1 sentence of evidence:', bold=True)
+table(
+    ['Criterion', 'Score', 'Evidence (required)'],
+    [
+        ['Feasibility', '4/5', '"APIs exist, Flutter handles cross-platform, $5K sufficient for MVP"'],
+        ['Market Demand', '3/5', '"40M users in VN, but 2 dominant players — hard to penetrate"'],
+        ['Uniqueness', '2/5', '"NhacCuaTui already has indie section, Zing dominates VN"'],
+        ['Time to MVP', '4/5', '"3 months realistic with Flutter + Firebase — not novel tech"'],
+        ['Scalability', '4/5', '"Standard cloud architecture, CDN for audio — well understood"'],
+        ['Cost Efficiency', '3/5', '"Audio streaming CDN costs grow linearly with users"'],
+        ['Legal Risk', '2/5', '"Music licensing in Vietnam is complex — [research needed]"'],
+        ['Timing', '3/5', '"Market growing but competitors already established"'],
+    ]
+)
+body('Verdict: CONDITIONAL GO — proceed only if licensing requirements can be met '
+     'and a clear differentiator is found vs NhacCuaTui.', bold=True)
+
+heading('Agent 6: UX Strategist — How Will Users Experience This?', 3)
+body('Designs user journeys based on UX research (NNGroup, Baymard Institute):')
+body('First open → onboarding → "aha moment" must happen in < 2 minutes', bullet=True)
+body('Daily loop: notification trigger → explore → save → share', bullet=True)
+body('Creative idea: "What if onboarding worked like a game tutorial?"', bullet=True)
+
+heading('Agent 7: Risk Assessor — What Could Kill This Project?', 3)
+body('Asks: "How would I GUARANTEE this project FAILS?"', bold=True)
+body('"Ignore all music licensing" → MUST research Vietnamese music copyright laws', bullet=True)
+body('"Assume one API will always work" → MUST have fallback for every API', bullet=True)
+body('"Build everything before launching" → MUST launch MVP in 3 months max', bullet=True)
+
+doc.add_page_break()
+
+heading('Phase 4: Final Document (Agent 8, ~3 minutes)', 2)
+body('Agent 8 (Crystallizer) takes ALL 7 reports and compiles them into 1 document.', bold=True)
+body('Important: Agent 8 does NOT add new information. It only:')
+body('Distills: pulls key findings from each report', bullet=True)
+body('Connects: shows where agents agreed or disagreed', bullet=True)
+body('Traces: every claim links back to its source agent + URL', bullet=True)
+body('Scores: calculates an Overall Confidence Score for the entire spec', bullet=True)
+
+heading('Quality Control: Nothing Gets Passed Without Checking', 2)
+body('Between Phase 2 and Phase 3, the orchestrator checks each report:')
+body('✓ Does it have at least 5 source URLs?', bullet=True)
+body('✓ Are all sections filled (no empty headings)?', bullet=True)
+body('✓ Is there real data, not just opinions?', bullet=True)
+body('If a report fails → that agent gets re-run. If it fails twice → '
+     'the gap is noted in the final document so you know what to research manually.', bold=True)
+
+doc.add_page_break()
+
+# ══════════════════════════════════════════════════════════════
+#  4. WHAT YOU GET
+# ══════════════════════════════════════════════════════════════
+heading('4. What You Get: The 13-Section Idea Specification', 1)
+
+body('After ~20 minutes, you receive a single, structured document:', bold=True)
 
 table(
-    ['Hospital Analogy', 'Our Pipeline', 'Why Separate?'],
+    ['Section', 'What It Contains', 'Why It\'s Useful'],
     [
-        ['Receptionist collects symptoms',   'Agent 1: asks you 10-15 questions',
-         'Forces thorough info gathering\nbefore any diagnosis'],
-        ['Lab runs blood tests',             'Agent 2-4: research market, tech,\ncompetitors (run simultaneously)',
-         'Each looks at different angle\nwith fresh eyes'],
-        ['Specialist reviews results',       'Agent 5-7: evaluate idea, UX, risks\n(run simultaneously)',
-         'Evaluator hasn\'t seen your chat\nwith Agent 1 — no bias'],
-        ['Doctor writes final report',       'Agent 8: compiles into 13-section spec',
-         'Only compiles what specialists\nfound — adds nothing new'],
+        ['1. Problem Statement', 'Pain point + who + how big', 'Validated by web search'],
+        ['2. Target User', 'Persona + segment size', 'Based on real demographics'],
+        ['3. Solution Overview', 'MVP features + differentiator', 'Compared against competitors'],
+        ['4. Market Opportunity', 'TAM/SAM/SOM + growth + trends', 'Real numbers with URLs'],
+        ['5. Competitive Landscape', '5+ competitors + feature matrix', 'Every app has a URL'],
+        ['6. Tech Architecture', 'Stack + API pricing + costs', 'Pricing pages verified'],
+        ['7. UX & User Journey', 'Onboarding + retention hooks', 'Based on UX research'],
+        ['8. Monetization', 'Revenue model + benchmarks', 'Industry data cited'],
+        ['9. Risk Analysis', 'Risks ranked + mitigations', 'Legal reqs researched'],
+        ['10. Evaluation', '8-dimension scorecard + verdict', 'Evidence per score'],
+        ['11. MVP Scope', 'Must-have / nice-to-have', 'Realistic timeline'],
+        ['12. Go-to-Market', 'Launch strategy + first users', 'Based on competitor gaps'],
+        ['13. Evidence Trail', 'ALL sources + confidence scores', 'Full audit trail'],
     ]
 )
 
-img('pipeline_v5_maxpower', 'The full pipeline: you type 1 prompt, 8 agents work for you, 6 run in parallel', 6.2)
+heading('How Much Can You Trust the Output?', 2)
+body('Every claim has a confidence level so you know what\'s verified and what\'s not:', bold=True)
 
-heading('Why 8 Agents Instead of 1?', 2)
-body('Three reasons:', bold=True)
-body('1. Fresh perspective: Agent 5 (evaluator) has never seen your original idea. '
-     'It only sees the research reports. So it evaluates objectively, '
-     'like a jury that only sees evidence, not testimony.', bullet=True)
-body('2. Parallel speed: Agents 2-4 run at the SAME TIME, not one after another. '
-     'Same with Agents 5-7. So 8 agents finish in the time of 4.', bullet=True)
-body('3. Quality control: The orchestrator checks each agent\'s output before '
-     'passing it to the next phase. If an agent produces garbage, it gets re-run.', bullet=True)
+img('evidence', 'Traditional: no source, can\'t verify. This method: source URL + confidence level.', 5.5)
 
-doc.add_page_break()
-
-# ══════════════════════════════════════════════════════════════
-#  5. THE 8 AGENTS — What Each One Does
-# ══════════════════════════════════════════════════════════════
-heading('5. The 8 Agents — What Each One Does', 1)
-
-img('agents_v5_detail', 'All 8 agents with their specialties and what they search for', 6.2)
-
-agents_simple = [
-    ('Phase 1: Understanding Your Idea', [
-        ('🔍 Requirements Analyst',
-         'Asks you 10-15 structured questions before doing anything else. '
-         'Then challenges your assumptions: "You said no app does X — let me search to verify."',
-         'A Requirements Brief with validated data'),
-    ]),
-    ('Phase 2: Researching (3 agents run at the same time)', [
-        ('📊 Market Researcher',
-         'Searches for: market size, demographics, trends, pricing benchmarks. '
-         'Tests your market at extreme scales: "What if you had 1M users? What breaks?"',
-         'Market Report with TAM/SAM/SOM + source URLs'),
-        ('⚙️ Tech Scout',
-         'Searches for APIs, frameworks, hosting costs. Checks real pricing pages. '
-         'Finds patterns: "All the APIs you need have rate limits — you need a caching layer."',
-         'Tech Report with API pricing + infrastructure costs'),
-        ('🏢 Competitor Analyst',
-         'Finds 5+ real competitors. Reads their App Store reviews. '
-         'Generates creative alternatives: "What if your music app worked like a restaurant tasting menu?"',
-         'Competitor Report with real URLs + creative ideas'),
-    ]),
-    ('Phase 3: Evaluating (3 agents run at the same time)', [
-        ('⚖️ Idea Evaluator',
-         'Scores your idea on 8 dimensions, each with evidence. '
-         'Finds simplifications: "If we cut feature X, it also eliminates problems Y and Z."',
-         'Evaluation Report with GO/PIVOT/KILL verdict'),
-        ('🎨 UX Strategist',
-         'Designs user journeys based on UX research from NNGroup/Baymard. '
-         'Forces creative collisions: "What if your onboarding worked like a video game tutorial?"',
-         'UX Strategy with personas + engagement hooks'),
-        ('⚠️ Risk Assessor',
-         'Identifies every risk, then asks: "How would I GUARANTEE this project fails?" '
-         'Stress-tests riskat 1000x scale. Searches for legal requirements.',
-         'Risk Assessment with mitigations + legal research'),
-    ]),
-    ('Phase 4: Final Document', [
-        ('📋 Idea Crystallizer',
-         'Takes all 7 reports and compiles them into 1 document. '
-         'Does NOT add new info — only distills, connects, and traces every claim to its source.',
-         '13-Section Idea Specification with confidence score'),
-    ]),
-]
-
-for phase_name, agents in agents_simple:
-    heading(phase_name, 2)
-    for emoji_name, desc, output in agents:
-        heading(emoji_name, 3)
-        body(desc)
-        body(f'Output: {output}', bold=True)
-
-doc.add_page_break()
-
-# ══════════════════════════════════════════════════════════════
-#  6. WHAT YOU GET — The Output
-# ══════════════════════════════════════════════════════════════
-heading('6. What You Get: The 13-Section Idea Specification', 1)
-
-body('After ~20 minutes, you receive a single document with:', bold=True)
-
-table(
-    ['Section', 'What It Contains', 'Why It Matters'],
-    [
-        ['1. Problem Statement', 'Pain point + who has it + how big', 'Validated — not assumed'],
-        ['2. Target User', 'Persona + demographics + segment size', 'Based on real data'],
-        ['3. Solution Overview', 'Core value + MVP features + USP', 'Differentiated from competitors'],
-        ['4. Market Opportunity', 'TAM/SAM/SOM + growth rate + trends', 'Real numbers with URLs'],
-        ['5. Competitive Landscape', '5+ real competitors + feature matrix', 'URLs you can click'],
-        ['6. Technical Architecture', 'Stack + APIs + costs at scale', 'Pricing verified'],
-        ['7. UX & User Journey', 'Onboarding + engagement + retention', 'Based on UX research'],
-        ['8. Monetization Strategy', 'Revenue model + pricing benchmarks', 'Industry benchmarks cited'],
-        ['9. Risk Analysis', 'Critical/high/medium/low risks', 'Legal requirements searched'],
-        ['10. Evaluation Summary', '8-dimension scorecard + verdict', 'Evidence per score'],
-        ['11. MVP Scope', 'Must-have / nice-to-have / out-of-scope', 'Realistic timeline'],
-        ['12. Go-to-Market Sketch', 'Launch strategy + first 100 users', 'Based on competitor analysis'],
-        ['13. Evidence Trail', 'ALL source URLs + confidence scores', 'Full audit trail'],
-    ]
-)
-
-heading('Confidence Score — How Much Can You Trust This?', 2)
-body('Every claim in the document has a confidence level:', bold=True)
 table(
     ['Level', 'What It Means', 'Example'],
     [
-        ['✅ Validated (90%+)', '3+ sources agree', 'Spotify has 600M+ users (Wikipedia, TechCrunch, Statista)'],
-        ['🟡 Likely (60-89%)', '1-2 sources found', 'Indie music market ~$4B (Grand View Research)'],
-        ['🟠 Low confidence', 'Reasoning only', 'Estimated 5% conversion based on similar apps'],
-        ['❌ Unvalidated', 'No data found', 'No data on Vietnamese indie music app market [NEEDS RESEARCH]'],
+        ['✅ Validated (90%+)', '3+ sources confirm this', '"Spotify has 600M+ users" — Wikipedia + TechCrunch + Statista'],
+        ['🟡 Likely (60-89%)', '1-2 sources found', '"VN indie music market ~$200M" — MIDiA Research report'],
+        ['🟠 Low Confidence', 'Reasoning only, no source', '"Estimated 5% conversion" — based on similar apps'],
+        ['❌ Unvalidated', 'No data found', '"No data on VN indie app market" — NEEDS YOUR RESEARCH'],
     ]
 )
-body('The final document includes an Overall Confidence Score — '
-     'so you know exactly how much of the spec is backed by data vs. assumptions.', bold=True)
+
+body('The document ends with an Overall Confidence Score: "72% of claims are validated." '
+     'You know exactly what you can trust and what needs more work.', bold=True)
 
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
-#  7. HOW TO USE IT — Step by Step
+#  5. HOW TO SET UP
 # ══════════════════════════════════════════════════════════════
-heading('7. How to Use It (Step by Step)', 1)
+heading('5. How to Start Using It Today', 1)
 
-img('setup_v5', 'One-time setup: copy files, then use forever', 5.5)
+img('setup', 'Setup once (5 minutes), then use for every new idea', 5.5)
 
 heading('One-Time Setup (5 minutes)', 2)
-body('1. Copy the 9 agent files to your project:', bold=True)
+body('Copy 10 files into your project. That\'s all.', bold=True)
 code('.cursor/\n'
-     '  agents/                    <-- Cursor auto-detects these\n'
-     '    ideation-orchestrator.md\n'
-     '    requirements-analyst.md\n'
-     '    market-researcher.md\n'
-     '    tech-scout.md\n'
-     '    competitor-analyst.md\n'
-     '    idea-evaluator.md\n'
-     '    ux-strategist.md\n'
-     '    risk-assessor.md\n'
-     '    idea-crystallizer.md\n'
-     '  mcp.json                   <-- MCP servers (optional)\n')
-
-body('2. That\'s it. No installation, no packages, no API keys.', bold=True)
+     '  agents/                    <-- Cursor finds these automatically\n'
+     '    ideation-orchestrator.md    (manages the pipeline)\n'
+     '    requirements-analyst.md    (asks questions + validates)\n'
+     '    market-researcher.md       (finds market data)\n'
+     '    tech-scout.md              (checks APIs + pricing)\n'
+     '    competitor-analyst.md      (finds real competitors)\n'
+     '    idea-evaluator.md          (scores + critiques)\n'
+     '    ux-strategist.md           (designs experience)\n'
+     '    risk-assessor.md           (finds risks + legal)\n'
+     '    idea-crystallizer.md       (compiles everything)\n'
+     '  mcp.json                     (optional: API docs tool)')
 
 heading('Every Time You Have a New Idea', 2)
-body('Step 1: Open Cursor → Agent Mode', bullet=True)
-body('Step 2: Type your idea (even 1 sentence is enough):', bullet=True)
-callout('💬 /ideation-orchestrator "I want to make a music app that helps discover indie Vietnamese artists"')
-body('Step 3: Answer 10-15 questions from the Requirements Analyst', bullet=True)
-body('Step 4: Wait ~15 minutes while 6 agents research in parallel', bullet=True)
-body('Step 5: Receive your 13-section Idea Specification', bullet=True)
+body('Open Cursor → Agent Mode → type:', bold=True)
+callout('💬 /ideation-orchestrator "I want to make [your idea here]"')
 
-heading('Example: What Your Interaction Looks Like', 2)
-body('The Requirements Analyst will ask questions like:')
-table(
-    ['Category', 'Example Question'],
-    [
-        ['WHO', '"Who is your target user? Age range? Are they tech-savvy?"'],
-        ['WHAT', '"What are the 3 core features? Mobile or web? Offline needed?"'],
-        ['WHY', '"What apps exist that you don\'t like? Why?"'],
-        ['HOW', '"What\'s your budget for an MVP? Timeline?"'],
-        ['CONSTRAINTS', '"Any licensing concerns? Must use specific technology?"'],
-    ]
-)
-body('You answer briefly. The agent follows up on vague answers. '
-     'Then all 7 other agents work automatically.', bold=True)
+body('Then:')
+body('1. Answer 10-15 questions from the Requirements Analyst (2-5 min)', bullet=True)
+body('2. Wait while 6 agents research in parallel (~15 min)', bullet=True)
+body('3. Receive your 13-section Idea Specification', bullet=True)
+
+body('Total effort: 1 sentence + answering questions. Total time: ~20 minutes.', bold=True)
+body('Everything else is fully automatic.', bold=True)
 
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
-#  8. WHY THIS WORKS — The Techniques
+#  6. WHAT MAKES IT SMART
 # ══════════════════════════════════════════════════════════════
-heading('8. What Makes It Smart: Built-In Thinking Techniques', 1)
+heading('6. What Makes It Smart: The Techniques Behind Each Agent', 1)
 
-body('Each agent doesn\'t just search — it THINKS using proven problem-solving techniques:')
-
-img('techniques_v5', 'Each agent uses a specific thinking technique to go deeper than simple search', 6.2)
+body('Each agent doesn\'t just search — it THINKS using proven techniques:')
 
 table(
-    ['Technique', 'What It Does', 'Example'],
+    ['Technique', 'What It Does', 'Real Example', 'Used By'],
     [
-        ['Assumption Flipping', 'Challenges what you believe is true.\n"What if the opposite were true?"',
-         'You say "users want more features"\n→ Flip: "What if they want FEWER?"\n→ Insight: Focus on simplicity wins'],
-        ['Extreme Scale Testing', 'Tests your idea at 1000x and 0.001x.\n"What breaks? What survives?"',
-         'At 1M users: API costs = $50K/mo\nAt 100 users: does app make sense?\n→ Need cost alerts + min viable audience'],
-        ['Creative Collision', 'Forces unrelated concepts together.\n"What if music app × restaurant?"',
-         '→ "Daily tasting flight of 5 curated songs"\n→ No algorithm, no choice paralysis\n→ Something NO competitor has'],
-        ['Pattern Recognition', 'Spots patterns across 3+ technologies.\n"What\' universal here?"',
-         'All APIs rate-limit at scale\n→ Need caching layer for ALL APIs\n→ Architecture decision made early'],
-        ['Simplification', 'Finds 1 change that eliminates\nmultiple problems at once.',
-         '"Don\'t host music files at all"\n→ Eliminates: licensing, CDN costs,\ncatalog management, AND moderation'],
+        ['Assumption\nFlipping',
+         'Challenges what you\nbelieve is true.\n"What if the problem\nis the opposite?"',
+         '"Users want more features"\n→ "What if they want fewer?"\n→ Simplicity wins\n(proven by Spotify vs iTunes)',
+         'Agent 1\n(Requirements)\nAgent 7\n(Risk)'],
+        ['Extreme Scale\nTesting',
+         'Tests your idea at\n1000x and 0.001x.\n"What breaks?\nWhat survives?"',
+         '"At 1M users, API costs =\n$50K/month"\n"At 100 users, does the\napp even make sense?"',
+         'Agent 2\n(Market)\nAgent 7\n(Risk)'],
+        ['Creative\nCollision',
+         'Forces unrelated\nconcepts together to\nfind new ideas.',
+         '"Music app × Restaurant =\nDaily tasting flight of\n5 curated songs"\n→ NO competitor has this',
+         'Agent 4\n(Competitor)\nAgent 6\n(UX)'],
+        ['Pattern\nRecognition',
+         'Spots what\'s true\nacross 3+ technologies.\nFinds universal truths.',
+         '"ALL your APIs rate-limit\nat scale" → Build caching\nlayer from day 1',
+         'Agent 3\n(Tech)'],
+        ['Simplification',
+         'Finds 1 change that\nfixes multiple problems\nat the same time.',
+         '"Don\'t host music files"\n→ Fixes: licensing +\nCDN costs + moderation\nALL with 1 decision',
+         'Agent 5\n(Evaluator)'],
     ]
 )
 
-body('These techniques come from ClaudeKit (open-source by Anthropic) — '
-     'proven problem-solving frameworks adapted for AI agents.', bold=True)
+body('These techniques come from open-source frameworks (BMAD Method, ClaudeKit by Anthropic). '
+     'They\'re not magic — they\'re structured thinking tools that force the AI to go deeper '
+     'than a simple search.', bold=True)
 
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
-#  9. BUILT-IN SAFETY — Quality Control
+#  7. SAFETY
 # ══════════════════════════════════════════════════════════════
-heading('9. Built-In Safety: Quality Gates & When-Stuck Protocol', 1)
+heading('7. When the AI Can\'t Find Data (And What It Does About It)', 1)
 
-heading('Quality Gates', 2)
-body('The orchestrator doesn\'t blindly pass data between phases. '
-     'After Phase 2 and Phase 3, it checks:', bold=True)
-body('✓ Does each report have at least 5 source URLs?', bullet=True)
-body('✓ Are all required sections filled (no empty headings)?', bullet=True)
-body('✓ Is there at least 1 data point per major claim?', bullet=True)
-body('If an agent fails → it gets re-run with better instructions.', bold=True)
+body('Real problem: some searches return nothing. Most AIs will MAKE SOMETHING UP '
+     'rather than say "I don\'t know." This method explicitly forbids that.', bold=True)
 
-heading('When-Stuck: What If the Agent Can\'t Find Data?', 2)
-body('Real problem: some searches return nothing. Every agent has a fallback:')
+heading('The When-Stuck Protocol', 2)
+body('Every agent follows a 4-step fallback when search fails:')
 table(
-    ['Step', 'What the Agent Does'],
+    ['Step', 'What the Agent Does', 'Example'],
     [
-        ['1. Broaden', 'Remove qualifiers, try synonyms, search broader category'],
-        ['2. Alternative sources', 'Try Reddit, HackerNews, Quora, industry reports'],
-        ['3. Adjacent markets', 'Search parent/sibling categories instead'],
-        ['4. Accept the gap', 'Mark as [NO DATA] — NEVER fabricate an answer'],
+        ['1. Broaden\nsearch', 'Remove specific terms,\ntry synonyms', '"Vietnamese indie music app market"\n→ "Southeast Asia music app market"'],
+        ['2. Alternative\nsources', 'Try Reddit, HackerNews,\nindustry reports', 'Official stats failed → search Reddit\nfor user discussions, founder posts'],
+        ['3. Adjacent\nmarkets', 'Search parent/sibling\ncategory instead', '"Vietnamese indie music" → "Asian\nstreaming market" or "global indie"'],
+        ['4. Accept\nthe gap', 'Mark as [NO DATA].\nNEVER fabricate.', '"Vietnamese indie music market size:\n[NO DATA — needs manual research]"'],
     ]
 )
 
-callout('🔒 Rule: An agent will NEVER make up data to fill a gap.\n'
-        'It will always tell you "I couldn\'t find this" rather than invent numbers.')
-
-# ══════════════════════════════════════════════════════════════
-#  10. ALSO WORKS WITH
-# ══════════════════════════════════════════════════════════════
-heading('10. Also Works With Other AI Tools', 1)
-body('This method is designed for Cursor, but the principles work anywhere:')
-table(
-    ['Tool', 'How to Use'],
-    [
-        ['Cursor IDE', 'Copy agent files to .cursor/agents/ (recommended — native integration)'],
-        ['ChatGPT', 'Run 4 separate conversations, paste agent prompt as first message each time'],
-        ['Claude', 'Use Projects feature — 1 project per agent, paste outputs between them'],
-        ['Windsurf', 'Use .windsurfrules files (similar to Cursor)'],
-        ['Any AI', 'The core idea: separate sessions, separate roles, documents as handoff'],
-    ]
-)
+callout('🔒 Critical Rule: An agent will NEVER make up data to fill a gap.\n'
+        'It will always say "I couldn\'t find this — here\'s what you need to research manually"\n'
+        'rather than invent numbers that sound plausible.')
 
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
-#  11. TIPS & COMMON MISTAKES
+#  8. ALSO WORKS WITH
 # ══════════════════════════════════════════════════════════════
-heading('11. Tips & Common Mistakes', 1)
+heading('8. Using This With Other AI Tools', 1)
+body('This method is designed for Cursor, but the core principles work with any AI tool:')
+table(
+    ['Tool', 'How to Use This Method'],
+    [
+        ['Cursor (recommended)', 'Copy agent files to .cursor/agents/\nFully automatic — native subagent support'],
+        ['ChatGPT Plus', 'Run 4 separate conversations (or 8 if patient).\nPaste each agent\'s prompt as first message.\nManually copy output between conversations.'],
+        ['Claude', 'Use the Projects feature.\nCreate separate projects for each agent.\nPaste outputs as context in next project.'],
+        ['Any other AI', 'Core idea: separate sessions, separate roles.\nEach "agent" = a new conversation with a system prompt.\nDocuments are the handoff between sessions.'],
+    ]
+)
 
-heading('Do', 2)
+body('The principle is always the same: different specialists, separate contexts, '
+     'evidence-based output. Cursor just makes it automated.', bold=True)
+
+# ══════════════════════════════════════════════════════════════
+#  9. TIPS
+# ══════════════════════════════════════════════════════════════
+heading('9. Tips & Common Mistakes', 1)
+
+heading('✅ Do', 2)
 for tip in [
-    'Keep the seed SHORT (even 1 sentence). The first agent\'s job is to expand it.',
-    'Answer questions honestly — short answers are fine, the agent follows up.',
-    'Read the confidence scores — low-confidence claims need manual verification.',
-    'Challenge Agent 5\'s scoring if something feels wrong: "Why did you give this a 4?"',
-    'Use the SCAMPER variants — they often produce the winning idea.',
-    'This Idea Spec is the INPUT for Practice 2 (Idea → Plan).',
+    'Keep your initial idea SHORT — even 1 sentence. Agent 1\'s job is to expand it through questions.',
+    'Answer questions honestly. Short answers are fine — the agent follows up on vague answers.',
+    'Read the confidence scores. Low-confidence claims need YOUR manual verification.',
+    'Challenge the evaluator\'s scores if something feels wrong: "Why only 3/5 on uniqueness?"',
+    'Pay attention to the SCAMPER variants — they often produce the best idea.',
+    'Use this Idea Spec as the INPUT for Practice 2 (Idea → Architecture & Plan).',
 ]:
     body(tip, bullet=True)
 
-heading('Don\'t', 2)
+heading('❌ Don\'t', 2)
 for tip in [
-    'Don\'t skip the questioning phase — bad requirements = bad everything.',
-    'Don\'t accept scores without reading the evidence.',
-    'Don\'t modify the final spec — if something is wrong, re-run the responsible agent.',
-    'Don\'t use this for trivial ideas — if you already know exactly what to build, skip to Practice 2.',
+    'Don\'t skip the questioning phase. Bad requirements = bad everything downstream.',
+    'Don\'t accept scores without reading the evidence sentence.',
+    'Don\'t edit the final document directly. If something is wrong, re-run that specific agent.',
+    'Don\'t use this for trivial ideas you\'ve already validated. Jump to Practice 2 instead.',
 ]:
     body(tip, bullet=True)
 
-# ══════════════════════════════════════════════════════════════
-#  12. WHAT'S NEXT
-# ══════════════════════════════════════════════════════════════
-heading('12. What\'s Next: Practice 2 & 3', 1)
-body('This is Practice 1 of a 3-part series. Each practice feeds into the next:', bold=True)
-table(
-    ['Practice', 'Name', 'Input', 'Output'],
-    [
-        ['1 (this)', 'Multi-Agent Ideation', '1 sentence idea', '13-section Idea Specification'],
-        ['2 (next)', 'Idea to Plan', 'Idea Specification', 'Architecture + user stories + timeline'],
-        ['3 (last)', 'Plan to Code', 'Implementation Plan', 'Working code + tests'],
-    ]
-)
-body('The Idea Specification from Practice 1 becomes the input for Practice 2. '
-     'Different agents, same principle: separate specialists, documents as handoff, '
-     'evidence over opinions.', bold=True)
-
-doc.add_paragraph()
+doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════
-#  SOURCES
+#  10. WHAT'S NEXT
 # ══════════════════════════════════════════════════════════════
-heading('Sources & References', 1)
-body('This method combines ideas from:', bold=True)
+heading('10. What\'s Next: From Idea to Working Code', 1)
+body('This document is Practice 1 of 3. Each practice feeds into the next:', bold=True)
 
-img('sources_v5', 'The open-source frameworks that power this method', 5.5)
+img('series', 'From 1 sentence to working code: each practice uses different specialist agents', 5.5)
 
 table(
-    ['Source', 'What We Used', 'URL'],
+    ['Practice', 'Name', 'Input', 'Output', 'Agents Used'],
     [
-        ['BMAD Method', 'Multi-agent personas, orchestrator pattern',
-         'github.com/bmad-code-org/BMAD-METHOD'],
-        ['ClaudeKit', '5 thinking techniques + context engineering',
-         'github.com/anthropics/claudekit'],
-        ['Cursor Subagents', 'Native parallel execution + context isolation',
-         'cursor.com/learn/agents'],
-        ['context7.com', 'API documentation via llms.txt protocol',
-         'context7.com'],
+        ['1 (this)', 'Multi-Agent\nIdeation', '1 sentence\nidea', '13-section Idea\nSpecification', '8 research +\nevaluation agents'],
+        ['2 (next)', 'Idea to\nPlan', 'Idea\nSpecification', 'Architecture +\nuser stories', 'Architect, PM,\nUX Designer'],
+        ['3 (last)', 'Plan to\nCode', 'Implementation\nPlan', 'Working code\n+ tests', 'Developer, QA,\nCode Reviewer'],
     ]
 )
+
+body('The 13-section document from this practice becomes the input for Practice 2. '
+     'Different specialist agents, same principle: evidence over opinions, '
+     'multiple perspectives, quality checks between phases.', bold=True)
 
 # FOOTER
 doc.add_paragraph()
 ft = doc.add_paragraph(); ft.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = ft.add_run('Report generated: 2026-04-16  |  Practice 1: Multi-Agent Ideation  |  Video Editor')
+r = ft.add_run('Report generated: 2026-04-17  |  Practice 1: Multi-Agent Ideation Pipeline  |  Video Editor')
 r.font.size=Pt(8); r.font.color.rgb=RGBColor(0x99,0x99,0x99); r.font.name='Calibri'
 
 out = r'd:\PROJECT\MyMusic\docs\practice1\Practice-1-Multi-Agent-Ideation.docx'
